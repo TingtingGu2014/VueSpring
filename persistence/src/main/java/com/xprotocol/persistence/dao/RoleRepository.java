@@ -32,18 +32,14 @@ public class RoleRepository {
 
     @Transactional
     public int addRole(String roleName) {
-//        Role role = findRoleByName(roleName);
-//        if(null != role){
-//            throw new EntityAlreadyExistsDuringInsertionException("The user role with name "+roleName+" has already existed in the database!");
-//        }
-        jdbcTemplate.update("INSERT INTO roles(roleName) VALUES (?)", roleName);
+        jdbcTemplate.update("INSERT INTO roles(roleName) VALUES (?)", new Object[]{roleName});
         return jdbcTemplate.queryForObject(" SELECT last_insert_id()", Integer.class);
     }
 
     @Transactional(readOnly=true)
     public Role findRoleById(int roleId) {
         Role role = null;
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from roles where roleId=? ", new Object[]{new Integer(roleId)});
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from roles where roleId=? ", new Object[]{roleId}, Integer.class);
         while(rs.next()){
             role = new Role(rs.getInt("roleId"), rs.getString("roleName"));
         }
@@ -53,7 +49,7 @@ public class RoleRepository {
     @Transactional(readOnly=true)
     public Role findRoleByName(String roleName) {
         Role role = null;
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from roles where roleId=? ", new Object[]{new Integer(roleName)});
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("select * from roles where roleName=? ", new Object[]{roleName}, String.class);
         while(rs.next()){
             role = new Role(rs.getInt("roleId"), rs.getString("roleName"));
         }
@@ -62,6 +58,16 @@ public class RoleRepository {
 
     @Transactional
     public void deleteRoleById(int roleId){
-        jdbcTemplate.execute(" DELETE FROM roles WHERE roleId = '"+roleId+"'");
+        jdbcTemplate.queryForObject(" DELETE FROM roles WHERE roleId = ?", new Object[]{roleId}, Integer.class);
+    }
+    
+    @Transactional
+    public void updateRoleById(int roleId, String newName){
+        jdbcTemplate.update(" UPDATE roles SET roleName = ? WHERE roleid = ? ", new Object[]{newName, roleId});
+    }
+    
+    @Transactional
+    public void updateRoleByName(String oldName, String newName){
+        jdbcTemplate.update(" UPDATE roles SET roleName = ? WHERE roleid = ? ", new Object[]{newName, oldName});
     }
 }

@@ -36,7 +36,7 @@ public class UserRolesRepository {
     
     @Transactional
     public int addUserRolesByUserIdRoleId(int userId, int roleId){
-        jdbcTemplate.update("INSERT INTO userRoles (userId, roleId) VALUES (?,?)", userId, roleId);
+        jdbcTemplate.update("INSERT INTO userRoles (userId, roleId) VALUES (?,?)", new Object[]{userId, roleId});
         
         return jdbcTemplate.queryForObject(" SELECT last_insert_id()", Integer.class);
     }

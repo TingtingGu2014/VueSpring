@@ -9,7 +9,9 @@ package com.xprotocol.persistence;
  *
  * @author Tao Zhao
  */
+import com.xprotocol.persistence.dao.RoleRepository;
 import com.xprotocol.persistence.dao.UserRepository;
+import com.xprotocol.persistence.dao.UserRolesRepository;
 import com.xprotocol.persistence.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -33,7 +35,13 @@ public class Application implements CommandLineRunner {
     DataSource dataSource;
 
     @Autowired
-    private UserRepository customerRepository;
+    private UserRepository userRepo;
+    
+    @Autowired
+    private RoleRepository roleRepo;
+    
+    @Autowired
+    private UserRolesRepository userRolesRepo;
 
     public static void main(String[] args) throws Exception {
         new SpringApplicationBuilder(Application.class)
@@ -56,7 +64,7 @@ public class Application implements CommandLineRunner {
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("email", "tinggia@xprotocol.com");
             paramMap.put("active", 0);
-            customerRepository.updateUserByUserId(2, paramMap);
+            userRepo.updateUserByUserId(2, paramMap);
             
         } else {
             if (args[0].equalsIgnoreCase("insert")) {
@@ -66,15 +74,47 @@ public class Application implements CommandLineRunner {
                 String email = args[3];
                 String alias = args[4];
 
-                customerRepository.addUser(firstName, lastName, email, alias);
+                userRepo.addUser(firstName, lastName, email, alias);
             }
 
             if (args[0].equalsIgnoreCase("display")) {
                 System.out.println("Display all users...");
-                List<User> list = customerRepository.findAll();
+                List<User> list = userRepo.findAll();
                 list.forEach(x -> System.out.println(x));
             }
-            System.out.println("Done!");
+            
+            if (args[0].equalsIgnoreCase("role_insert")) {
+                System.out.println("insert new rolws...");
+                String roleName = args[1];
+                int roleIndex = roleRepo.addRole(roleName);
+                System.out.println("new role has been added with name = " + roleName + " and index = "+roleIndex);
+            }
+            
+            if (args[0].equalsIgnoreCase("role_update")) {
+                System.out.println("update roles...");
+                String oldName = args[1];
+                String roleName = args[2];
+                roleRepo.updateRoleByName(oldName, roleName);
+//                System.out.println("new role has been added with name = " + roleName + " and index = "+roleIndex);
+            }
+            
+            if (args[0].equalsIgnoreCase("user_role_insert")) {
+                System.out.println("insert new user role...");
+                int userId = Integer.valueOf(args[1]);
+                int roleId = Integer.valueOf(args[2]);
+                int roleIndex = userRolesRepo.addUserRolesByUserIdRoleId(userId, roleId);
+                System.out.println("new user role has been added with user id = " + userId + " and roleId = "+roleId+" with index = "+roleIndex);
+            }
+            
+            if (args[0].equalsIgnoreCase("user_role_update")) {
+                System.out.println("update user roles...");
+                String oldName = args[1];
+                String roleName = args[2];
+                roleRepo.updateRoleByName(oldName, roleName);
+//                System.out.println("new role has been added with name = " + roleName + " and index = "+roleIndex);
+            }
+            
+            System.out.println("Done with arg = "+args[0]+"!");
         }
         exit(0);
     }
