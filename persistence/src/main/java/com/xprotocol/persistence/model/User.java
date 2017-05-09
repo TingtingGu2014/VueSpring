@@ -11,13 +11,14 @@ public class User {
     private String firstName;
     private String lastName;
     private String email;
+    private String password;
     private String alias;
     private Date createdDate;
     private boolean active;
 
     public User(){}
 
-    public User(int userId, String firstName, String lastName, String email, String alias, Date createdDate, boolean active) {
+    public User(int userId, String firstName, String lastName, String email, String password, String alias, Date createdDate, boolean active) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -25,6 +26,11 @@ public class User {
         this.alias = alias;
         this.createdDate = createdDate;
         this.active = active;
+        this.password = password;
+    }
+    
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public void setFirstName(String firstName) {
@@ -84,6 +90,10 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+    
+    public String getPassword() {
+        return this.password;
     }
 
     public Date getCreatedDate() {

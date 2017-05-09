@@ -24,25 +24,25 @@ public class UserRepository {
     }
 
     @Transactional
-    public int  addUser(String email) {
-        return addUser("", "", email, "", true);
+    public int  addUser(String email, String password) {
+        return addUser("", "", email, "", password, true);
     }
 
     @Transactional
-    public int addUser(String email, String alias) {
-        return addUser("", "", email, alias, true);
+    public int addUser(String email, String alias, String password) {
+        return addUser("", "", email, alias, password, true);
     }
 
     @Transactional
-    public int addUser(String firstName, String lastName, String email, String alias) {
-        return addUser(firstName, lastName, email, alias, true);
+    public int addUser(String firstName, String lastName, String email, String alias, String password) {
+        return addUser(firstName, lastName, email, alias, password, true);
     }
 
     @Transactional
-    public int addUser(String firstName, String lastName, String email, String alias, boolean active) {
+    public int addUser(String firstName, String lastName, String email, String alias, String password, boolean active) {
         
-        jdbcTemplate.update("INSERT INTO users(firstName, lastName, email, alias, createdDate, active) VALUES (?,?,?,?,?,?)",
-                firstName, lastName, email, alias, new Date(), active);
+        jdbcTemplate.update("INSERT INTO users(firstName, lastName, email, alias, createdDate, password, active) VALUES (?,?,?,?,?,?,?)",
+                new Object[]{firstName, lastName, email, alias, password, new Date(), active});
         
         return jdbcTemplate.queryForObject(" SELECT last_insert_id()", Integer.class);
     }

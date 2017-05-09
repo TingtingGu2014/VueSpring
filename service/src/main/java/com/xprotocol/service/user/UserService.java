@@ -14,13 +14,13 @@ import java.util.List;
  */
 public interface UserService {
 
-    int addUser(String email);
+    int addUser(String email, String password);
 
-    int addUser(String email, String alias);
+    int addUser(String email, String alias, String password);
 
-    int addUser(String firstName, String lastName, String email, String alias);
+    int addUser(String firstName, String lastName, String email, String alias, String password);
 
-    int addUser(String firstName, String lastName, String email, String alias, boolean active);
+    int addUser(String firstName, String lastName, String email, String alias, String password, boolean active);
 
     List<User> findAll();
 

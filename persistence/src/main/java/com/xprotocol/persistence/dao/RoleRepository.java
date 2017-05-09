@@ -23,8 +23,7 @@ public class RoleRepository {
     public List<Role> findAll() {
 
         List<Role> result = jdbcTemplate.query("Select roleId, roleName FROM roles ",
-                (rs, rowNum) -> new Role(rs.getInt("roleId"),
-                        rs.getString("roleName"))
+                (rs, rowNum) -> new Role(rs.getInt("roleId"),rs.getString("roleName"))
         );
         return result;
 

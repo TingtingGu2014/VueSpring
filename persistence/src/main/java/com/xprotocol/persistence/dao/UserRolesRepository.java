@@ -25,6 +25,14 @@ public class UserRolesRepository {
     private JdbcTemplate jdbcTemplate;
     
     @Transactional(readOnly = true)
+    public List<String> findRoleNamesByUserId(int userId){
+        List<String> result = jdbcTemplate.query("Select roleName FROM userRoles, roles WHERE userRoles.userId=? AND userRoles.roleId=roles.roleId ",
+                new Object[]{userId}, (rs, rowNum) -> (rs.getString("roleName"))
+        );
+        return result;
+    }
+    
+    @Transactional(readOnly = true)
     public List<Integer> findRolesByUserId(int userId){
         return jdbcTemplate.queryForList("SELECT roleId FROM userRoles WHERE userId=? ", new Object[]{userId}, Integer.class);
     }

@@ -73,8 +73,9 @@ public class Application implements CommandLineRunner {
                 String lastName = args[2];
                 String email = args[3];
                 String alias = args[4];
+                String password = args[5];
 
-                userRepo.addUser(firstName, lastName, email, alias);
+                userRepo.addUser(firstName, lastName, email, alias, password);
             }
 
             if (args[0].equalsIgnoreCase("display")) {
@@ -112,6 +113,13 @@ public class Application implements CommandLineRunner {
                 String roleName = args[2];
                 roleRepo.updateRoleByName(oldName, roleName);
 //                System.out.println("new role has been added with name = " + roleName + " and index = "+roleIndex);
+            }
+            
+            if (args[0].equalsIgnoreCase("user_role_select")) {
+                System.out.println("select user roles...");
+                int userId = Integer.valueOf(args[1]);
+                List<String> roleNames = userRolesRepo.findRoleNamesByUserId(userId);
+                System.out.println("role names = " + roleNames);
             }
             
             System.out.println("Done with arg = "+args[0]+"!");
