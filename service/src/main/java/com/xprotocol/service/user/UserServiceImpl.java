@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
  * @author Tao Zhao
  */
 
-@Component
+@Service
 @ComponentScan("com.xprotocol.persistence")
 public class UserServiceImpl implements UserService {
     
