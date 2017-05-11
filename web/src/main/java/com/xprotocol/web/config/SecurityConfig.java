@@ -48,15 +48,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .antMatchers("/css/**","/images/**","/scripts/**").permitAll()
-                .antMatchers("/").permitAll()
+                .antMatchers("/home","/index.html","/","/index").permitAll()
                 .antMatchers("/login").permitAll()
-                .antMatchers("/registration").permitAll()
+                .antMatchers("/users").permitAll()
                 .antMatchers("/admin/**").hasAuthority("admin")
                 .antMatchers("/api/**").hasAuthority("admin")
                 .anyRequest().authenticated()
                 .and().requestCache().requestCache(new NullRequestCache())
                 .and().httpBasic()
-                .and().formLogin().usernameParameter("email").passwordParameter("password").defaultSuccessUrl("/users")
+                .and().formLogin().usernameParameter("email").passwordParameter("password").defaultSuccessUrl("/index.html")
                 .and().csrf().disable();
     }
 }
