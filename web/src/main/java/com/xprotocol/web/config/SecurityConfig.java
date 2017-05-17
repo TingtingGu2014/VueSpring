@@ -1,4 +1,4 @@
-package com.xprotocol.web.security;
+package com.xprotocol.web.config;
 
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/css/**","/images/**","/scripts/**").permitAll()
+                .antMatchers("/css/**","/images/**","/img/**","/js/**","/fonts/glyphicons**").permitAll()
                 .antMatchers("/home","/index.html","/","/index").permitAll()
                 .antMatchers("/login").permitAll()
                 .antMatchers("/users").permitAll()
