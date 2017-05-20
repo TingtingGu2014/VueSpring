@@ -2,5 +2,6 @@
 **/nb-configuration.xml
 **/nbactions.xml
 **/*.iml
+**/Main.java
 out/
 web-old/
