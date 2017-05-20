@@ -3,5 +3,6 @@
 **/nbactions.xml
 **/*.iml
 **/Main.java
+web/customs.json
 out/
 web-old/
