@@ -1,0 +1,20 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : May 12, 2017, 12:16:22 AM
+    Author     : Tao Zhao
+*/
+
+.btn-navbar{
+    font-size: 14px;
+    color: #c7ddef;
+    background-color: #269abc;
+}
+
+.center-block {  
+  margin-right: auto;  
+  margin-left: auto;  
+}  
