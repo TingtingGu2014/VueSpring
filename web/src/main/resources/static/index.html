@@ -186,13 +186,22 @@ var PersonDetail = Vue.extend({
                   event.preventDefault()
               }
               alert(message)
-              axios.get('/users')
-                .then(function (response) {
-                  console.log(response);
-                })
-                .catch(function (error) {
-                  console.log(error);
-                });
+              axios.post('/user',{
+                  email: this.email,
+                  password: this.password,
+                  alias: this.alias
+              }).then(function(response){
+                  console.log(response)
+              }).catch(function(error){
+                  console.log(error)
+              })                   
+//              axios.get('/users')
+//                .then(function (response) {
+//                  console.log(response);
+//                })
+//                .catch(function (error) {
+//                  console.log(error);
+//                });
               this.$parent.$emit('signupsubmit')
           },
           
