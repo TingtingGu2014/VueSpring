@@ -13,7 +13,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -33,12 +35,20 @@ public class UserController {
     UserService userSrv;
     
     @RequestMapping(value="/users")
-    public List<User> findAll(){
+    public List<User> findAll(HttpServletRequest request){
+        HttpSession session = request.getSession();
         return userSrv.findAll();
     }
     
+    /**
+     *
+     * @param request : http request
+     * @param user : user information
+     * @param response : http response
+     * @return : new user
+     */
     @RequestMapping(value="/user", method=RequestMethod.POST)
-    public User signUp(@ModelAttribute("SpringWeb") User user, HttpServletResponse response){
+    public User signUp(HttpServletRequest request, @ModelAttribute("SpringWeb") User user, HttpServletResponse response){
         try{
             if(Validators.isEmptyString(user.getEmail())){            
                 throw new IncompleteRegistrationInformationException("The user email is empty!");
@@ -54,7 +64,55 @@ public class UserController {
         }
         catch(IncompleteRegistrationInformationException ex){
             try {
-                response.sendError(400, "The user email is empty!");
+                response.sendError(400, "Incomplete user registration information!");
+            } catch (IOException ex1) {
+                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+        }
+        catch(Exception ex){
+            try {
+                response.sendError(500, ex.getMessage());
+            } catch (IOException ex1) {
+                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+        }
+        return user;
+    }
+    
+    /**
+     *
+     * @param request : http request
+     * @param user : user information
+     * @param response : http response
+     * @return : logged in user
+     */
+    @RequestMapping(value="/user", method=RequestMethod.GET)
+    public User login(HttpServletRequest request, HttpServletResponse response) {
+        User user = null;
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+        try{
+            if(Validators.isEmptyString(email)){            
+                throw new IncompleteRegistrationInformationException("The user email is empty!");
+            }
+            else if(Validators.isEmptyString(password)){
+                throw new IncompleteRegistrationInformationException("The user password is empty!");
+            }
+            else if(!Validators.emailValidator(email)){
+                throw new IncompleteRegistrationInformationException("The user email is NOT valid!");
+            }
+            user = userSrv.userLogin(email, password);
+        }
+        catch(IncompleteRegistrationInformationException ex){
+            try {
+                response.sendError(400, "Incomplete user login information!");
+            } catch (IOException ex1) {
+                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+        }
+        catch(Exception ex){
+            try {
+                response.sendError(500, ex.getMessage());
             } catch (IOException ex1) {
                 Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
             }

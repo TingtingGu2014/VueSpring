@@ -23,6 +23,8 @@ public interface UserService {
     int addUser(String firstName, String lastName, String email, String alias, String password, boolean active);
 
     List<User> findAll();
+    
+    User userLogin(String email, String password);
 
     User findUserByEmail(String email);
 

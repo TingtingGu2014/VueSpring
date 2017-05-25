@@ -41,7 +41,7 @@ public class UserRepository {
     @Transactional
     public int addUser(String firstName, String lastName, String email, String alias, String password, boolean active) {
         
-        jdbcTemplate.update("INSERT INTO users(firstName, lastName, email, alias, createdDate, password, active) VALUES (?,?,?,?,?,?,?)",
+        jdbcTemplate.update("INSERT INTO users(firstName, lastName, email, alias, password, createdDate, active) VALUES (?,?,?,?,?,?,?)",
                 new Object[]{firstName, lastName, email, alias, password, new Date(), active});
         
         return jdbcTemplate.queryForObject(" SELECT last_insert_id()", Integer.class);
@@ -52,6 +52,13 @@ public class UserRepository {
         return jdbcTemplate.queryForObject(
                 "select * from users where userId=? AND active=? ",
                 new Object[]{userId, true}, new UserRowMapper());
+    }
+    
+    @Transactional(readOnly=true)
+    public User userLogin(String email, String password) {
+        return jdbcTemplate.queryForObject(
+                "select * from users where email=? AND password=? AND active=? ",
+                new Object[]{email, password, true}, new UserRowMapper());
     }
 
     @Transactional(readOnly=true)
