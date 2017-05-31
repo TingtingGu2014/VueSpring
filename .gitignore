@@ -1,0 +1,11 @@
+**/target/
+**/nb-configuration.xml
+**/nbactions.xml
+**/*.iml
+**/Main.java
+web/customs.json
+out/
+web-old/
+web/src/main/resources/static/.babelrc
+web/src/main/resources/static/node_modules/
+web/src/main/resources/static/package.json
