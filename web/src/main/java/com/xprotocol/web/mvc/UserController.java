@@ -7,6 +7,7 @@ package com.xprotocol.web.mvc;
 
 import com.xprotocol.persistence.model.User;
 import com.xprotocol.service.user.UserService;
+import com.xprotocol.service.user.exceptions.UserDoesNotExistException;
 import com.xprotocol.utils.Validators;
 import com.xprotocol.web.exceptions.IncompleteRegistrationInformationException;
 import java.io.IOException;
@@ -101,18 +102,23 @@ public class UserController {
             else if(!Validators.emailValidator(email)){
                 throw new IncompleteRegistrationInformationException("The user email is NOT valid!");
             }
-            user = userSrv.userLogin(email, password);
+            try{
+                user = userSrv.userLogin(email, password);
+            }
+            catch(Exception ex){
+                throw new UserDoesNotExistException("Cannot find the user with email: "+email+".\nException message: "+ex.getMessage());
+            }
         }
         catch(IncompleteRegistrationInformationException ex){
             try {
-                response.sendError(400, "Incomplete user login information!");
+                response.sendError(400, ex.getMessage());
             } catch (IOException ex1) {
                 Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
             }
         }
-        catch(Exception ex){
+        catch(UserDoesNotExistException ex){
             try {
-                response.sendError(500, ex.getMessage());
+                response.sendError(400, ex.getMessage());
             } catch (IOException ex1) {
                 Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
             }
