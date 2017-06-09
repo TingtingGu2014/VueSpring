@@ -2,12 +2,16 @@
     <!--<div class="row form-inline" >-->
         <form class="form-inline" v-if="loggedin">
             <span class="glyphicon glyphicon-user"></span> 
-            <a href="#" v-if="userAlias">
-                {{userAlias}}
-            </a>
-            <a href="#" v-else>
-                {{userEmail}}
-            </a>
+            <!--<router-link to="/profile/userId">Go to notfound</router-link>-->
+            <router-link :to="{ name: 'userProfile', params: { id: userId }}">
+                <span v-if="userAlias">
+                    {{userAlias}}
+                </span>
+                <span v-else>
+                    {{userEmail}}
+                </span>
+            </router-link>
+            
              &nbsp;&nbsp;
             <a href="/signout"><span class="fa fa-sign-out"></span> Sign Out</a>
         </form>
@@ -20,33 +24,6 @@
             &nbsp;&nbsp;
             <a href="/signup"><span class="fa fa-user"></span> Sign Up</a> 
         </form>        
-    <!--</div>-->
-<!--    <table class="table form-inline" style="margin-top:2.3%">
-        <tr v-if="loggedin">
-            <td style="padding-top:20%">
-                <span class="glyphicon glyphicon-user"></span> 
-                <a v-if="userAlias">
-                    {{userAlias}}
-                </a>
-                <a v-else>
-                    {{userEmail}}
-                </a>
-            </td>
-        </tr>
-        <tr v-else>
-            <td>
-                <input type="email" class="form-control " placeholder="email" v-model='emaillogin'>
-                &nbsp;
-                <input type="password" class="form-control " placeholder="password" v-model="passwordlogin">
-                &nbsp;
-                <a href="#" v-on:click="loginsubmit"><span class="glyphicon glyphicon-log-in"></span> Login</a> 
-                &nbsp;&nbsp;
-            </td>
-            <td>
-                <a href="/signup"><span class="glyphicon glyphicon-user"></span> Sign Up</a>
-            </td> 
-        </tr>        
-    </table>-->
     
 </template>     
 
@@ -59,8 +36,8 @@
         },
         data: function () {
             return {
-                loggedin: true,
-                userEmail: 'taocom',
+                loggedin: false,
+                userEmail: '',
                 userAlias: '',
                 userId: '',
                 emaillogin: '',
