@@ -18,7 +18,7 @@ public class LoginController {
         return view;
     }
 
-    @RequestMapping(value = "/api/resource", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/resource")
     public Map<String, String> getResource() {
         Map<String, String> resource = new HashMap<String, String>();
         resource.put("resource", "here is some resource");

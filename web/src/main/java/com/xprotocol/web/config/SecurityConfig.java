@@ -48,18 +48,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/css/**","/images/**","/img/**","/js/**","/dist/**").permitAll()
-                .antMatchers("/home","/index.html","/","/index").permitAll()
-                .antMatchers("/login").permitAll()
-                .antMatchers("/users").permitAll()
-                .antMatchers(HttpMethod.GET, "/user").permitAll()
-                .antMatchers(HttpMethod.POST, "/user").permitAll()
+                .antMatchers("/css/**","/images/**","/img/**","/js/**","/dist/**","/src/**").permitAll()
+                .antMatchers("/home","/index.html","/","/index","/error").permitAll()
+                .antMatchers("/login", "/signout").permitAll()
+//                .antMatchers("/users").permitAll()
+//                .antMatchers(HttpMethod.GET, "/user").permitAll()
+//                .antMatchers(HttpMethod.POST, "/user").permitAll()
                 .antMatchers("/admin/**").hasAuthority("admin")
                 .antMatchers("/api/**").hasAuthority("admin")
                 .anyRequest().authenticated()
                 .and().requestCache().requestCache(new NullRequestCache())
                 .and().httpBasic()
-                .and().formLogin().usernameParameter("email").passwordParameter("password").defaultSuccessUrl("/index.html")
+//                .and().formLogin().usernameParameter("email").passwordParameter("password").defaultSuccessUrl("/index.html")
                 .and().csrf().disable();
     }
 }

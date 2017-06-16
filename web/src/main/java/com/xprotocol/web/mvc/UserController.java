@@ -11,17 +11,21 @@ import com.xprotocol.service.user.exceptions.UserDoesNotExistException;
 import com.xprotocol.utils.Validators;
 import com.xprotocol.web.exceptions.IncompleteRegistrationInformationException;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -90,9 +94,13 @@ public class UserController {
     @RequestMapping(value="/user", method=RequestMethod.GET)
     public User login(HttpServletRequest request, HttpServletResponse response) {
         User user = null;
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
+        String authCredentials = request.getHeader("Authorization");
+        
         try{
+            authCredentials = new String(Base64.getDecoder().decode(authCredentials.split(" ")[1]));
+            String[] authCredentialsArr = authCredentials.split(":");
+            String email = authCredentialsArr[0];
+            String password = authCredentialsArr[1];
             if(Validators.isEmptyString(email)){            
                 throw new IncompleteRegistrationInformationException("The user email is empty!");
             }
@@ -104,6 +112,10 @@ public class UserController {
             }
             try{
                 user = userSrv.userLogin(email, password);
+                Cookie loggedIn = new Cookie("loggedIn", "true");
+                loggedIn.setMaxAge(60*60);
+                loggedIn.setPath("/");
+                response.addCookie(loggedIn);
             }
             catch(Exception ex){
                 throw new UserDoesNotExistException("Cannot find the user with email: "+email+".\nException message: "+ex.getMessage());
@@ -124,5 +136,20 @@ public class UserController {
             }
         }
         return user;
+    }
+    
+    /**
+     * 
+     * @param session : HttpSession
+     * @param response : HttpServletResponse
+     */
+    @RequestMapping(value = "/signout", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(HttpSession session, HttpServletResponse response) {
+        session.invalidate();
+        Cookie loggedIn = new Cookie("loggedIn", "false");
+        loggedIn.setMaxAge(0);
+        loggedIn.setPath("/");
+        response.addCookie(loggedIn);
     }
 }

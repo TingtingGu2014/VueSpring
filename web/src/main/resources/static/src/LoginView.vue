@@ -1,6 +1,6 @@
 <template id="login-template">
     <!--<div class="row form-inline" >-->
-        <form class="form-inline" v-if="loggedin">
+        <form class="form-inline" v-if=loggedIn>
             <span class="glyphicon glyphicon-user"></span> 
             <!--<router-link to="/profile/userId">Go to notfound</router-link>-->
             <router-link :to="{ name: 'userProfile', params: { id: userId }}">
@@ -13,14 +13,14 @@
             </router-link>
             
              &nbsp;&nbsp;
-            <a href="/signout"><span class="fa fa-sign-out"></span> Sign Out</a>
+            <a href="#" v-on:click="logoutsubmit"><span class="fa fa-sign-out"></span>&nbsp;Sign Out</a> 
         </form>
         <form class="form-inline" v-else>
             <input type="email" class="form-control " placeholder="email" v-model='emaillogin'>
             &nbsp;
             <input type="password" class="form-control " placeholder="password" v-model="passwordlogin">
             &nbsp;
-            <a href="#" v-on:click="loginsubmit"><span class="fa fa-sign-in"></span> Login</a> 
+            <a href="#" v-on:click="loginsubmit"><span class="fa fa-sign-in"></span>&nbsp;Sign In</a> 
             &nbsp;&nbsp;
             <a href="/signup"><span class="fa fa-user"></span> Sign Up</a> 
         </form>        
@@ -28,18 +28,24 @@
 </template>     
 
 <script>
-
+    var loggedIn = !isEmpty(readCookie('loggedIn'));
+    if(loggedIn === false){
+        localStorage.userEmail = '';
+        localStorage.userName = '';
+        localStorage.userId = '';
+    }
                 
     export default {
+        
         props: {
             
         },
         data: function () {
             return {
-                loggedin: false,
-                userEmail: '',
-                userAlias: '',
-                userId: '',
+                loggedIn: loggedIn,
+                userEmail: localStorage.userEmail,
+                userAlias: localStorage.userAlias,
+                userId: localStorage.userId,
                 emaillogin: '',
                 passwordlogin: '',
             }
@@ -49,25 +55,34 @@
                 if (event){
                     event.preventDefault()
                 }
-    //            alert(message)
+
                 axios({
                     method: 'get',
                     url: '/user',
-                    params: {
-                        email: this.emaillogin,
+                    dataType: 'json',
+                    headers: {
+//                        "Authorization": make_base_auth(this.emaillogin, this.passwordlogin)
+                        headers: {'X-Requested-With': 'XMLHttpRequest'},
+                    },
+                    auth: {
+                        username: this.emaillogin,
                         password: this.passwordlogin
-                    }
+                    },
                 })
                 .then( (response) => {
                     var status = response.status;
                     var data = response.data;
+
                     if(status == 200){
                         alert("200");
-                        this.loggedin = true;
+                        alert(response.headers["Set-Cookie"]);
+                        localStorage.userEmail = data.email;
+                        localStorage.userName = data.alias;
+                        localStorage.userId = data.userId;
+                        this.loggedIn = true;
                         this.userEmail = data.email;
                         this.userAlias = data.alias;
                         this.userId = data.userId;
-                        alert(this.userAlias);
                     }
                     else{
                         alert("not 200");
@@ -79,7 +94,47 @@
                   });
             
             },
+            logoutsubmit: function (message, event) {
+                if (event){
+                    event.preventDefault()
+                }
+
+                axios({
+                    method: 'post',
+                    url: '/signout',
+                    dataType: 'json',
+                })
+                .then( (response) => {
+                    var status = response.status;
+                    var data = response.data;
+
+                    if(status == 204){
+                        localStorage.userEmail = '';
+                        localStorage.userName = '';
+                        localStorage.userId = '';
+                        this.loggedIn = false;
+                        this.userEmail = '';
+                        this.userAlias = '';
+                        this.userId = '';
+                    }
+                    else{
+                        alert("not 204 "+status);
+                    }                                   
+                    console.log(this.userEmail);
+                  })
+                  .catch( (error) => {
+                    console.log(error);
+                  });
+            
+            },
         }
+    }
+    
+    function make_base_auth(user, password) {
+        var tok = 'Basic ' + user + ':' + password;
+        return tok;
+//        var hash = btoa(tok);
+//        return 'Basic ' + hash;
     }
 </script>
 
