@@ -1,29 +1,28 @@
 <template id="login-template">
-    <!--<div class="row form-inline" >-->
-        <form class="form-inline" v-if=loggedIn>
-            <span class="glyphicon glyphicon-user"></span> 
-            <!--<router-link to="/profile/userId">Go to notfound</router-link>-->
-            <router-link :to="{ name: 'userProfile', params: { id: userId }}">
-                <span v-if="userAlias">
-                    {{userAlias}}
-                </span>
-                <span v-else>
-                    {{userEmail}}
-                </span>
-            </router-link>
-            
-             &nbsp;&nbsp;
-            <a href="#" v-on:click="logoutsubmit"><span class="fa fa-sign-out"></span>&nbsp;Sign Out</a> 
-        </form>
-        <form class="form-inline" v-else>
-            <input type="email" class="form-control " placeholder="email" v-model='emaillogin'>
-            &nbsp;
-            <input type="password" class="form-control " placeholder="password" v-model="passwordlogin">
-            &nbsp;
-            <a href="#" v-on:click="loginsubmit"><span class="fa fa-sign-in"></span>&nbsp;Sign In</a> 
-            &nbsp;&nbsp;
-            <a href="/signup"><span class="fa fa-user"></span> Sign Up</a> 
-        </form>        
+    <form class="form-inline" v-if=loggedIn>
+        <span class="glyphicon glyphicon-user"></span> 
+        <!--<router-link to="/profile/userId">Go to notfound</router-link>-->
+        <router-link :to="{ name: 'userProfile', params: { id: userId }}">
+            <span v-if="userAlias">
+                {{userAlias}}
+            </span>
+            <span v-else>
+                {{userEmail}}
+            </span>
+        </router-link>
+
+         &nbsp;&nbsp;
+        <a href="#" v-on:click="logoutsubmit"><span class="fa fa-sign-out"></span>&nbsp;Sign Out</a> 
+    </form>
+    <form class="form-inline" v-else>
+        <input type="email" class="form-control " placeholder="email" v-model='emaillogin'>
+        &nbsp;
+        <input type="password" class="form-control " placeholder="password" v-model="passwordlogin">
+        &nbsp;
+        <a href="#" v-on:click="loginsubmit"><span class="fa fa-sign-in"></span>&nbsp;Sign In</a> 
+        &nbsp;&nbsp;             
+        <router-link :to="{ name: 'signUp'}"><span class="fa fa-user"></span>&nbsp;Sign Up</router-link>
+    </form>        
     
 </template>     
 
@@ -52,6 +51,12 @@
         },
         methods: {
             loginsubmit: function (message, event) {
+                
+                if(isEmpty(this.emaillogin) || isEmpty(this.passwordlogin)){
+                    alert("Please fill your email and password before sign in.");
+                    return;
+                }
+                
                 if (event){
                     event.preventDefault()
                 }
@@ -83,16 +88,16 @@
                         this.userEmail = data.email;
                         this.userAlias = data.alias;
                         this.userId = data.userId;
+                        document.location.href = '/profile'+this.userId;
                     }
                     else{
                         alert("not 200");
+                        return;
                     }                                   
-                    console.log(this.userEmail);
                   })
                   .catch( (error) => {
                     console.log(error);
-                  });
-            
+                  });                                    
             },
             logoutsubmit: function (message, event) {
                 if (event){

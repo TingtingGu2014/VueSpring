@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  *
@@ -145,11 +146,18 @@ public class UserController {
      */
     @RequestMapping(value = "/signout", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void logout(HttpSession session, HttpServletResponse response) {
+    public void signOut(HttpSession session, HttpServletResponse response) {
         session.invalidate();
         Cookie loggedIn = new Cookie("loggedIn", "false");
         loggedIn.setMaxAge(0);
         loggedIn.setPath("/");
         response.addCookie(loggedIn);
     }
+    
+//    @RequestMapping(value = "/signup")
+//    public ModelAndView getHome() {
+//        ModelAndView view = new ModelAndView();
+//        view.setViewName("/");
+//        return view;
+//    }
 }

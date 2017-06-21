@@ -1,38 +1,67 @@
 <template id="sign-up-template">
-    <div class="col-lg-4 col-lg-off-4 col-md-4 col-md-offset-4 col-sm-12 col-xs-12 " >
-        <form id="signup-form">
-            <div class="form-group">
-                <label for="email" class="control-label">Email</label>
+<!--    <div class="col-lg-4 col-lg-off-4 col-md-4 col-md-offset-4 col-sm-12 col-xs-12 col-center" >
+    <br><br>
+        <form class="form-horizontal" id="signup-form">
+            <div class="form-group form-inline">
+                <label for="email" class="control-label">Email: &nbsp;&nbsp;&nbsp;</label>
                 <input type="email" class="form-control" v-model='email' placeholder="name@domain.com">
                 <span v-if="email.length > 1">{{ email_message }}</span>
             </div>
 
-            <div class="form-group">
-                <label for="alias" class="control-label">Name</label>
+            <div class="form-group form-inline">
+                <label for="alias" class="control-label">Name: &nbsp;&nbsp;&nbsp;</label>
                 <input type="text" class="form-control" v-model="alias">
             </div>
 
-            <div class="form-group">
-                <label for="password" class="control-label">Password</label>
+            <div class="form-group form-inline">
+                <label for="password" class="control-label">Password: &nbsp;&nbsp;&nbsp;</label>
                 <input type="password" class="form-control" v-model="password">
             </div>
 
-            <div class="form-group">
+            <div class="form-group form-inline">
                 <button type="submit" class="btn btn-primary" v-on:click="signupsubmit" >Sign Up</button>
             </div>	
+        </form>
+    </div>-->
+    
+    <div class="container"><br><br>
+        <form>
+            <div class="form-group row justify-content-md-center">
+              <label for="inputEmail3" class="col-sm-2 col-form-label">Email:</label>
+              <div class="col-sm-10">                
+                <input type="email" class="form-control" v-model='email' placeholder="Email">
+              </div>
+              <span v-if="email.length > 1">{{ email_message }}</span>
+            </div>
+            <div class="form-group row" v-if="path.includes('signup')">
+                <label for="alias" class="col-sm-2 col-form-label">Name:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" v-model="alias">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputPassword3" class="col-sm-2 col-form-label">Password:</label>
+                <div class="col-sm-10">                
+                    <input type="password" class="form-control" v-model="password" placeholder="Password">
+                </div>
+            </div>
+            
+            <div class="form-group form-inline">
+                <button type="submit" class="btn btn-primary" v-on:click="signupsubmit" >Sign Up</button>
+            </div>
         </form>
     </div>
 </template>
 
 <script>
 
-                
     export default {
         data: function() {
             return {
                 email: '',
                 alias: '',
                 password: '',
+                path: window.location.pathname,
             }
         },
         watch: {

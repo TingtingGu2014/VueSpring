@@ -1,34 +1,4 @@
 <template id="nav-template">
-<!--    <nav id="navbarAnchor" class="navbar" style="height: 20%">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>                        
-                </button>
-                <a class="navbar-brand" href="#">XProtocol!</a>
-            </div>
-            <div class="collapse navbar-collapse align-middle " id="myNavbar">
-                <ul class="nav navbar-nav ">
-                    <li class="active"><a href="#">Home</a></li>
-                    <li>
-                        <form class="navbar-form navbar-left">
-                            <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Search Protocols">
-                            </div>
-                            <button type="button" class="btn btn-default" aria-label="Left Align">
-                                <i class="glyphicon glyphicon-search"></i>
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-                <div id="example" class="nav navbar-nav navbar-right ">
-                    <login-view></login-view>
-                </div>
-            </div>
-        </div>
-    </nav>-->
     <nav class="navbar navbar-toggleable-sm navbar-light bg-faded">
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -37,15 +7,15 @@
 
     <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
       <ul class="navbar-nav mr-auto mt-2 mt-md-0">
-        <li class="nav-item active">
-          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        <li class="nav-item active my-auto">          
+            <router-link :to="{ name: 'home'}"><span class="fa fa-home"></span> Home</router-link>
         </li>
         <li class="nav-item">
           <form class="form-inline my-2 my-lg-0">
-        <input class="form-control mr-sm-2" type="text" placeholder="Search Protocols">
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><i class="fa fa-search"></i></button>
-        <!--<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
-      </form>
+            <input class="form-control mr-sm-2" type="text" placeholder="Search Protocols">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><i class="fa fa-search"></i></button>
+            <!--<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
+          </form>
         </li>
       </ul>
         

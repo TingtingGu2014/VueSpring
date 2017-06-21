@@ -7,9 +7,10 @@ const SignUp = resolve => require(['./SignUp.vue'], resolve);
 const PageNotFound = resolve => require(['./PageNotFound.vue'], resolve);
 
 const routes = [
-    { path: '/', component: Home },
+    { path: '/', name: 'home', component: Home },
     { path: '/profile/:id' , name: 'userProfile', component: UserProfile },
-    { path: '/signup/' , component: SignUp },
+    { path: '/signup/' , name: 'signUp', component: SignUp },
+    { path: '/login' , name: 'login' , component: SignUp},
     { path: '/home', redirect: '/' },
     { path: "*", component: PageNotFound }
 ]
