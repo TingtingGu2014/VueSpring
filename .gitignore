@@ -10,3 +10,4 @@ web/src/main/resources/static/.babelrc
 web/src/main/resources/static/node_modules/
 web/src/main/resources/static/package.json
 web/src/main/resources/static/dist/
+cassandra/.*
