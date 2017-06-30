@@ -5,12 +5,12 @@
  */
 
 
-function isEmpty(obj){
+export function isEmpty(obj){
     return obj === null || typeof obj === 'undefined' || obj === '';
 }
 
 // The following three functions are from https://scotch.io/tutorials/easily-create-read-and-erase-cookies-with-jquery 
-function createCookie(name,value,days) {
+export function createCookie(name,value,days) {
     if (days) {
         var date = new Date();
         date.setTime(date.getTime()+(days*24*60*60*1000));
@@ -20,7 +20,7 @@ function createCookie(name,value,days) {
     document.cookie = name+"="+value+expires+"; path=/";
 }
 
-function readCookie(name) {
+export function readCookie(name) {
     var nameEQ = name + "=";
     var ca = document.cookie.split(';');
     for(var i=0;i < ca.length;i++) {
@@ -31,6 +31,6 @@ function readCookie(name) {
     return null;
 }
 
-function eraseCookie(name) {
+export function eraseCookie(name) {
     createCookie(name,"",-1);
 }

@@ -27,7 +27,8 @@
 </template>     
 
 <script>
-    var loggedIn = !isEmpty(readCookie('loggedIn'));
+    var Utils = require('./Utils')
+    var loggedIn = !Utils.isEmpty('');
     if(loggedIn === false){
         localStorage.userEmail = '';
         localStorage.userName = '';
@@ -52,7 +53,7 @@
         methods: {
             loginsubmit: function (message, event) {
                 
-                if(isEmpty(this.emaillogin) || isEmpty(this.passwordlogin)){
+                if(Utils.isEmpty(this.emaillogin) || Utils.isEmpty(this.passwordlogin)){
                     alert("Please fill your email and password before sign in.");
                     return;
                 }
@@ -88,7 +89,7 @@
                         this.userEmail = data.email;
                         this.userAlias = data.alias;
                         this.userId = data.userId;
-                        document.location.href = '/profile'+this.userId;
+//                        document.location.href = '/profile'+this.userId;
                     }
                     else{
                         alert("not 200");
