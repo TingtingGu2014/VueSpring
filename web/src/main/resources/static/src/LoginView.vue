@@ -1,8 +1,8 @@
 <template id="login-template">
-    <form class="form-inline" v-if=loggedIn>
-        <span class="glyphicon glyphicon-user"></span> 
+    <form class="form-inline" v-if=loggedIn>        
         <!--<router-link to="/profile/userId">Go to notfound</router-link>-->
         <router-link :to="{ name: 'userProfile', params: { id: userId }}">
+            <span class="fa fa-user"></span> 
             <span v-if="userAlias">
                 {{userAlias}}
             </span>
@@ -28,7 +28,7 @@
 
 <script>
     var Utils = require('./Utils')
-    var loggedIn = !Utils.isEmpty('');
+    var loggedIn = !Utils.isEmpty(Utils.readCookie('loggedIn'));
     if(loggedIn === false){
         localStorage.userEmail = '';
         localStorage.userName = '';
