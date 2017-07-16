@@ -66,8 +66,8 @@
                 }
 
                 axios({
-                    method: 'get',
-                    url: '/user',
+                    method: 'post',
+                    url: '/signIn',
                     dataType: 'json',
                     headers: {
 //                        "Authorization": make_base_auth(this.emaillogin, this.passwordlogin)
