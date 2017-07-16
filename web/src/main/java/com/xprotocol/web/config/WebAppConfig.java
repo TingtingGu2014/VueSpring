@@ -30,5 +30,6 @@ public class WebAppConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/signup").setViewName("forward:/");
+        registry.addViewController("/login").setViewName("forward:/");
     }
 }

@@ -22,11 +22,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private DataSource dataSource;
 
-    @Bean
-    public HttpSessionStrategy httpSessionStrategy() {
-        return new HeaderHttpSessionStrategy();
-    }
-    
 //    @Override
 //    public void configure(WebSecurity web) throws Exception {
 //        web.debug(true);
@@ -52,14 +47,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/home","/index.html","/","/index","/error").permitAll()
                 .antMatchers("/login", "/signup").permitAll()
 //                .antMatchers("/users").permitAll()
-//                .antMatchers(HttpMethod.GET, "/user").permitAll()
+                .antMatchers(HttpMethod.GET, "/user").permitAll()
 //                .antMatchers(HttpMethod.POST, "/user").permitAll()
                 .antMatchers("/admin/**").hasAuthority("admin")
                 .antMatchers("/api/**").hasAuthority("admin")
                 .anyRequest().authenticated()
                 .and().requestCache().requestCache(new NullRequestCache())
                 .and().httpBasic()
-//                .and().formLogin().usernameParameter("email").passwordParameter("password").defaultSuccessUrl("/index.html")
+                .and().formLogin().usernameParameter("email").passwordParameter("password").loginPage("/login").defaultSuccessUrl("/home")
+                .and().logout().logoutSuccessUrl("/home")
                 .and().csrf().disable();
     }
 }

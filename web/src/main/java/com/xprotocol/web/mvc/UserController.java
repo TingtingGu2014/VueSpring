@@ -146,12 +146,11 @@ public class UserController {
      */
     @RequestMapping(value = "/signout", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void signOut(HttpSession session, HttpServletResponse response) {
-        session.invalidate();
-        Cookie loggedIn = new Cookie("loggedIn", "false");
+    public void signOut(HttpServletRequest request, HttpServletResponse response) {
+        Cookie loggedIn = new Cookie("loggedIn", "");
         loggedIn.setMaxAge(0);
         loggedIn.setPath("/");
-        response.addCookie(loggedIn);
+        response.addCookie(loggedIn);        
     }
     
 //    @RequestMapping(value = "/signup")

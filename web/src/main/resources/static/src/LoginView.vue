@@ -80,8 +80,7 @@
                     var data = response.data;
 
                     if(status == 200){
-                        alert("200");
-                        alert(response.headers["Set-Cookie"]);
+//                        alert("200");
                         localStorage.userEmail = data.email;
                         localStorage.userName = data.alias;
                         localStorage.userId = data.userId;
@@ -89,7 +88,6 @@
                         this.userEmail = data.email;
                         this.userAlias = data.alias;
                         this.userId = data.userId;
-//                        document.location.href = '/profile'+this.userId;
                     }
                     else{
                         alert("not 200");
@@ -107,24 +105,28 @@
 
                 axios({
                     method: 'post',
-                    url: '/signout',
+                    url: '/logout',
                     dataType: 'json',
                 })
                 .then( (response) => {
                     var status = response.status;
                     var data = response.data;
 
-                    if(status == 204){
+                    if(status == 200){
                         localStorage.userEmail = '';
                         localStorage.userName = '';
                         localStorage.userId = '';
+                        var loggedIn = Utils.readCookie('loggedIn');
+                        if(loggedIn == 'true'){
+                            Utils.eraseCookie('loggedIn');
+                        }
                         this.loggedIn = false;
                         this.userEmail = '';
                         this.userAlias = '';
                         this.userId = '';
                     }
                     else{
-                        alert("not 204 "+status);
+                        alert("not 200 "+status);
                     }                                   
                     console.log(this.userEmail);
                   })
