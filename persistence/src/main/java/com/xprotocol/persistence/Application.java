@@ -22,6 +22,7 @@ import javax.sql.DataSource;
 import java.util.List;
 
 import static java.lang.System.exit;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -80,7 +81,9 @@ public class Application implements CommandLineRunner {
 
             if (args[0].equalsIgnoreCase("display")) {
                 System.out.println("Display all users...");
-                List<User> list = userRepo.findAll();
+//                List<User> list = userRepo.findAll();
+                List<User> list = new ArrayList<>();//userRepo.findAll();
+                list.add(userRepo.findUserByUUID("6f2ffac1-6d17-11e7-b6f4-39d8342ffe89"));
                 list.forEach(x -> System.out.println(x));
             }
             
