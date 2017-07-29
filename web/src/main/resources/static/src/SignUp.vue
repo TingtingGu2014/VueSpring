@@ -86,7 +86,7 @@
 //                        alert("200");
                         localStorage.userEmail = data.email;
                         localStorage.userName = data.alias;
-                        localStorage.userId = data.userId;
+                        localStorage.userUUID = data.userUUID;
                         document.location.href = '/home';
                     }
                     else{

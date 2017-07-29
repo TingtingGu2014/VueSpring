@@ -1,14 +1,16 @@
 <template id="login-template">
     <form class="form-inline" v-if=loggedIn>        
         <!--<router-link to="/profile/userId">Go to notfound</router-link>-->
-        <router-link :to="{ name: 'userProfile', params: { id: userId }}">
-            <span class="fa fa-user"></span> 
+        <router-link :to="{ name: 'userProfile', params: { userUUID: userUUID }  }" >
+        <!--<a href="#" v-on:click="getUserDetails">--> 
+            <span class="fa fa-user"></span>    
             <span v-if="userAlias">
                 {{userAlias}}
             </span>
             <span v-else>
                 {{userEmail}}
             </span>
+        <!--</a>-->
         </router-link>
 
          &nbsp;&nbsp;
@@ -27,12 +29,15 @@
 </template>     
 
 <script>
+
+    import { mapGetters, mapMutations } from 'vuex'
+    
     var Utils = require('./Utils')
     var loggedIn = !Utils.isEmpty(Utils.readCookie('loggedIn'));
     if(loggedIn === false){
         localStorage.userEmail = '';
         localStorage.userName = '';
-        localStorage.userId = '';
+        localStorage.userUUID = '';
     }
                 
     export default {
@@ -45,11 +50,11 @@
                 loggedIn: loggedIn,
                 userEmail: localStorage.userEmail,
                 userAlias: localStorage.userAlias,
-                userId: localStorage.userId,
+                userUUID: localStorage.userUUID,
                 emaillogin: '',
                 passwordlogin: '',
             }
-        },
+        },        
         methods: {
             loginsubmit: function (message, event) {
                 
@@ -83,20 +88,22 @@
 //                        alert("200");
                         localStorage.userEmail = data.email;
                         localStorage.userName = data.alias;
-                        localStorage.userId = data.userId;
+                        localStorage.userUUID = data.userUUID;
                         this.loggedIn = true;
                         this.userEmail = data.email;
                         this.userAlias = data.alias;
-                        this.userId = data.userId;
+                        this.userUUID = data.userUUID;    
+                        this.setDetailsFetched(false)
+                        document.location.href = '/home';
                     }
                     else{
                         alert("not 200");
                         return;
                     }                                   
-                  })
-                  .catch( (error) => {
+                })
+                .catch( (error) => {
                     console.log(error);
-                  });                                    
+                });                                    
             },
             logoutsubmit: function (message, event) {
                 if (event){
@@ -115,7 +122,7 @@
                     if(status == 200){
                         localStorage.userEmail = '';
                         localStorage.userName = '';
-                        localStorage.userId = '';
+                        localStorage.userUUID = '';
                         var loggedIn = Utils.readCookie('loggedIn');
                         if(loggedIn == 'true'){
                             Utils.eraseCookie('loggedIn');
@@ -123,7 +130,10 @@
                         this.loggedIn = false;
                         this.userEmail = '';
                         this.userAlias = '';
-                        this.userId = '';
+                        this.userUUID = '';
+                        this.setDetails(null);
+                        this.setDetailsFetched(false)
+                        document.location.href = '/home';
                     }
                     else{
                         alert("not 200 "+status);
@@ -135,6 +145,10 @@
                   });
             
             },
+            ...mapMutations({                
+                setUserDetails: 'userModule/setDetails',
+                setDetailsFetched: 'userModule/setDetailsFetched',
+            }),
         }
     }
     
