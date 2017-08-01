@@ -19,7 +19,7 @@
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label form-control-label">Last name</label>
                         <div class="col-lg-9">
-                            <input class="form-control" type="text" v-model="firstName">
+                            <input class="form-control" type="text" v-model="lastName">
                         </div>
                     </div>
                     <div class="form-group row">
@@ -118,7 +118,7 @@
                     axios({
                         method: 'get',
                         dataType: 'json',
-                        url: '/userProfile/'+localStorage.userUUID,
+                        url: '/api/userProfile/'+localStorage.userUUID,
                     }).then( (response) => {
                         if(response.status === 200){
                             var data = response.data
@@ -177,7 +177,7 @@
                 }
                 axios({
                     method: 'post',
-                    url: '/userProfile/'+localStorage.userUUID,
+                    url: '/api/userProfile/'+localStorage.userUUID,
                     params: {
                         email: this.email,
                         firstName: this.firstName,

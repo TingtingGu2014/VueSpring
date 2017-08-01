@@ -69,7 +69,7 @@
 
                 axios({
                     method: 'post',
-                    url: '/signIn',
+                    url: '/api/signIn',
                     dataType: 'json',
                     headers: {
 //                        "Authorization": make_base_auth(this.emaillogin, this.passwordlogin)
@@ -112,7 +112,7 @@
 
                 axios({
                     method: 'post',
-                    url: '/logout',
+                    url: '/api/logout',
                     dataType: 'json',
                 })
                 .then( (response) => {
