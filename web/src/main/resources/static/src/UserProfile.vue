@@ -111,7 +111,7 @@
                 getUserDetails: 'userModule/getUserDetails',
             })
         },
-        beforeCreate: function() {//alert('profile is being created!');           
+        created: function() {//alert('profile is being created!');           
             
             var loggedIn = !Utils.isEmpty(Utils.readCookie('loggedIn'));
             if(loggedIn === false){
@@ -127,24 +127,7 @@
                     }).then( (response) => {
                         if(response.status === 200){
                             var data = response.data
-                            var details = data.userDetails
-                            var user = data.user
-                            if(!Utils.isEmpty(details) && !this.isUserDetailsFetched){
-                                this.setUserDetails(data.userDetails)
-                                this.major = details.major
-                                this.address = details.address
-                                this.affiliation = details.affiliation
-                                this.city = details.city
-                                this.state = details.state
-                                this.zipcode = details.zipcode
-                            }                            
-                            this.email = user.email
-                            this.alias = user.alias
-                            this.userUUID = user.userUUID
-                            this.createdDate = user.createdDate
-                            this.firstName = user.firstName
-                            this.lastName = user.lastName                            
-                            this.setDetailsFetched(true)
+                            this.resetUserProfile(data)
                         }
                         else{
                             alert("not 200");
@@ -178,8 +161,40 @@
             onSubmit: function (message, event) {
                 
                 var qs = require('qs');
-                axios.post('/api/userProfile/'+localStorage.userUUID, qs.stringify(this.$data));
-            },            
+                axios.post('/api/userProfile/'+localStorage.userUUID, qs.stringify(this.$data))
+                .then( (response) => {
+                    if(response.status === 200){
+                        alert('Your profile information has been updated!')
+                        var data = response.data
+                        this.resetUserProfile(data)
+                    }
+                            
+                })
+                .catch(function (error) {
+                    alert('Your profile is NOT updated, sorry')
+                    console.log(error);
+                });
+            },           
+            resetUserProfile: function (data){
+                var details = data.userDetails
+                var user = data.user
+                if(!Utils.isEmpty(details) && !this.isUserDetailsFetched){
+                    this.setUserDetails(data.userDetails)
+                    this.major = details.major
+                    this.address = details.address
+                    this.affiliation = details.affiliation
+                    this.city = details.city
+                    this.state = details.state
+                    this.zipcode = details.zipcode
+                }                            
+                this.email = user.email
+                this.alias = user.alias
+                this.userUUID = user.userUUID
+                this.createdDate = user.createdDate
+                this.firstName = user.firstName
+                this.lastName = user.lastName                            
+                this.setDetailsFetched(true)
+            },
             ...mapMutations({                
                 setUserDetails: 'userModule/setUserDetails',
                 setDetailsFetched: 'userModule/setDetailsFetched',
