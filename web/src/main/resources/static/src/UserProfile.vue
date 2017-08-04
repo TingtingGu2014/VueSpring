@@ -9,7 +9,7 @@
                 <h6 class="mb-0">Update Your Profile</h6>
             </div>
             <div class="card-block">
-                <form class="form" role="form" autocomplete="off">
+                <form class="form" enctype="multipart/form-data" v-bind:action="'/api/userProfile/'+userUUID" method="post" name="userProfileInfo" role="form" autocomplete="off">
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label form-control-label">First name</label>
                         <div class="col-lg-9">
@@ -37,29 +37,33 @@
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label form-control-label">Major</label>
                         <div class="col-lg-9">
-                            <input class="form-control" type="url" v-model="major">
+                            <input class="form-control" type="text" v-model="major">
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label form-control-label">Affiliation</label>
                         <div class="col-lg-9">
-                            <input class="form-control" type="url" v-model="affiliation">
+                            <input class="form-control" type="text" v-model="affiliation">
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label form-control-label">Address</label>
                         <div class="col-lg-9">
-                            <input class="form-control" type="url" v-model="address">
+                            <input class="form-control" type="text" v-model="address">
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-2 col-form-label form-control-label">City</label>
-                        <div class="col-sm-5">
-                            <input class="form-control" type="url" v-model="city">
+                        <label class="col-sm-1 col-form-label form-control-label">City</label>
+                        <div class="col-sm-4">
+                            <input class="form-control" type="text" v-model="city">
                         </div>
-                        <label class="col-sm-2 col-form-label form-control-label">State</label>
-                        <div class="col-sm-3">
-                            <input class="form-control" type="url" v-model="state">
+                        <label class="col-sm-1 col-form-label form-control-label">State</label>
+                        <div class="col-sm-2">
+                            <input class="form-control" type="text" v-model="state">
+                        </div>
+                        <label class="col-sm-2 col-form-label form-control-label">Zip code</label>
+                        <div class="col-sm-2">
+                            <input class="form-control" type="text" v-model="zipcode">
                         </div>
                     </div>
                     
@@ -69,7 +73,7 @@
                             <input type="reset" class="btn btn-secondary" value="Cancel">
                             &nbsp;
                             &nbsp;
-                            <input type="button" class="btn btn-primary" value="Save Changes">
+                            <input type="submit" class="btn btn-primary" value="Save Changes" v-on:click.prevent="onSubmit">
                         </div>
                     </div>
                 </form>
@@ -81,6 +85,8 @@
 <script>
 
     import { mapGetters, mapMutations } from 'vuex'
+    
+    var Utils = require('./Utils')
             
     export default {
         data: function() {
@@ -94,7 +100,6 @@
                 major: '',
                 address: '',
                 affiliation: '',
-                keywords: '',
                 state: '',
                 city: '',
                 zipcode: '',
@@ -107,7 +112,7 @@
             })
         },
         beforeCreate: function() {//alert('profile is being created!');           
-            var Utils = require('./Utils')
+            
             var loggedIn = !Utils.isEmpty(Utils.readCookie('loggedIn'));
             if(loggedIn === false){
                 document.location.href = '/login';
@@ -129,7 +134,6 @@
                                 this.major = details.major
                                 this.address = details.address
                                 this.affiliation = details.affiliation
-                                this.keyWords = ''
                                 this.city = details.city
                                 this.state = details.state
                                 this.zipcode = details.zipcode
@@ -171,33 +175,13 @@
                     return false;
                 }
             },
-            profileUpdate: function (message, event) {
-                if (event){
-                    event.preventDefault()
-                }
-                axios({
-                    method: 'post',
-                    url: '/api/userProfile/'+localStorage.userUUID,
-                    params: {
-                        email: this.email,
-                        firstName: this.firstName,
-                        lastName: this.lastName,
-                        alias: this.alias,
-                        major: this.major,
-                        affiliation: this.affiliation,
-                        address: this.address,
-                        city: this.city,
-                        state: this.state,
-                    }
-                }).then(function (response) {
-                    console.log(response);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-            },
+            onSubmit: function (message, event) {
+                
+                var qs = require('qs');
+                axios.post('/api/userProfile/'+localStorage.userUUID, qs.stringify(this.$data));
+            },            
             ...mapMutations({                
-                setUserDetails: 'userModule/setDetails',
+                setUserDetails: 'userModule/setUserDetails',
                 setDetailsFetched: 'userModule/setDetailsFetched',
             }),
         }

@@ -21,6 +21,8 @@ public class UserDetailsRowMapper implements RowMapper<UserDetails>
         UserDetails userDetails = new UserDetails();
         userDetails.setUserDetailsId(rs.getInt("userDetailsId"));
         userDetails.setUserId(rs.getInt("userId"));
+        userDetails.setMajor(rs.getString("major"));
+        userDetails.setAffiliation(rs.getString("affiliation"));
         userDetails.setAddress(rs.getString("address"));
         userDetails.setCity(rs.getString("city"));
         userDetails.setState(rs.getString("state"));

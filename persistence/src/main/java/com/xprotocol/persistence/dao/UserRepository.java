@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 @Repository
 public class UserRepository {
@@ -62,9 +63,15 @@ public class UserRepository {
     @Transactional(readOnly=true)
     public User findUserByUUID(String userUUIDStr) {
         UUID userUUID = UUID.fromString(userUUIDStr);
-        return jdbcTemplate.queryForObject(
+        try{
+            return jdbcTemplate.queryForObject(
                 "select * from users where userUUID=? AND active=? ",
                 new Object[]{UtilsHelper.getBytesFromUUID(userUUID), true}, new UserRowMapper());
+            
+        }
+        catch(EmptyResultDataAccessException ex){
+            return null;
+        }
     }
     
     @Transactional(readOnly=true)

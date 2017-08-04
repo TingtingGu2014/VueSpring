@@ -3,19 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.xprotocol.service.exceptions;
+package com.xprotocol.persistence.exceptions;
 
 /**
  *
- * @author Tao Zhao
+ * @author zhao0677
  */
-public class UserDoesNotExistException extends Exception {
+public class NoExistingIdColumnForAddOrUpdateDataOpExcpetion extends Exception {
 
     /**
      *
      * @param message
      */
-    public UserDoesNotExistException(String message){
+    public NoExistingIdColumnForAddOrUpdateDataOpExcpetion(String message){
         super(message);
     }
 }

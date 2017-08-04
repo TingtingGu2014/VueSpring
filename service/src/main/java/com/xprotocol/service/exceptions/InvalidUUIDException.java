@@ -7,15 +7,15 @@ package com.xprotocol.service.exceptions;
 
 /**
  *
- * @author Tao Zhao
+ * @author zhao0677
  */
-public class UserDoesNotExistException extends Exception {
+public class InvalidUUIDException extends Exception {
 
     /**
      *
      * @param message
      */
-    public UserDoesNotExistException(String message){
+    public InvalidUUIDException(String message){
         super(message);
     }
 }

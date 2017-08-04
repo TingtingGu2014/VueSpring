@@ -8,6 +8,7 @@ package com.xprotocol.service.user;
 import com.xprotocol.persistence.dao.UserRepository;
 import com.xprotocol.persistence.model.User;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
@@ -74,5 +75,19 @@ public class UserServiceImpl implements UserService {
     public int inactivateUserByUserId(int userId) {
         return userRepo.inactivateUserByUserId(userId);
     }
+
+    @Override
+    public User findUserByUUID(String userUUIDStr) {
+        return userRepo.findUserByUUID(userUUIDStr);
+    }
+
+    @Override
+    public int inactivateUserByUserUUID(String userUUIDStr) {
+        return userRepo.inactivateUserByUserUUID(userUUIDStr);
+    }
     
+    @Override
+    public void updateUserByUserUUID(String userUUIDStr, Map<String, Object> valueMap) {
+        userRepo.updateUserByUserUUID(userUUIDStr, valueMap);
+    }
 }

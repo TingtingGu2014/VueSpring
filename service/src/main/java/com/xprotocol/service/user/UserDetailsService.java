@@ -5,6 +5,7 @@
  */
 package com.xprotocol.service.user;
 
+import com.xprotocol.persistence.exceptions.NoExistingIdColumnForAddOrUpdateDataOpExcpetion;
 import com.xprotocol.persistence.model.UserDetails;
 import java.util.Map;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public interface UserDetailsService {
 
     @Transactional
-    int addUserDetails(int userId, String address, String state, String city, String zipcode);
+    int addUserDetails(int userId, String address, String state, String city, String zipcode, String major, String affiliation);
 
     @Transactional(readOnly = true)
     UserDetails findUserDetailsByUserId(int userId);
@@ -24,4 +25,5 @@ public interface UserDetailsService {
     @Transactional
     void updateUserDetailsByUserDetailsId(int userDetailsId, Map<String, Object> valueMap);
     
+    void addOrUpdateUserDetailsWithUserId(UserDetails details) throws NoExistingIdColumnForAddOrUpdateDataOpExcpetion;
 }

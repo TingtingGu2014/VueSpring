@@ -32,8 +32,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
@@ -201,8 +203,9 @@ public class UserController {
         return null;
     }
     
+    @ResponseBody
     @RequestMapping(value = "/api/userProfile/{userUUIDStr}", method = RequestMethod.POST)
-    public int updateUserProfile(HttpServletRequest request, HttpServletResponse response, @PathVariable("userUUIDStr") String userUUIDStr) {
+    public int updateUserProfile(HttpServletRequest request, HttpServletResponse response, @PathVariable("userUUIDStr") String userUUIDStr, @ModelAttribute UserDetails details) {
         
         int rowAffected = -1;
         
@@ -221,7 +224,9 @@ public class UserController {
                 valueMap.put("lastName", (String)request.getParameter("lastName"));
                 valueMap.put("alias", (String)request.getParameter("alias"));
                 userSrv.updateUserByUserUUID(userUUIDStr, valueMap);
-            
+                
+                details.setUserId(user.getUserId());
+                userDetailsSrv.addOrUpdateUserDetailsWithUserId(details);
                 valueMap.clear();
                 valueMap.put("address", (String)request.getParameter("address"));
                 valueMap.put("city", (String)request.getParameter("city"));
@@ -230,12 +235,6 @@ public class UserController {
                 valueMap.put("major", (String)request.getParameter("major"));
                 valueMap.put("affiliation", (String)request.getParameter("affiliation"));
                 valueMap.put("userId", user.getUserId());
-                
-                try{
-                    rowAffected = persistenceSrv.addOrUpdateEntityWithVlues("userDetails", "userId", valueMap);
-                } catch (NoExistingIdColumnForAddOrUpdateDataOpExcpetion ex) {
-                    Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-                }
    
                 if(rowAffected != -1){
                     response.sendError(500, "Cannot update or add the user detail information for UUID: "+userUUIDStr+"! ");
@@ -252,7 +251,7 @@ public class UserController {
             } catch (IOException ex1) {
                 Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
             }
-        } catch (InvalidUUIDException | IOException ex) {
+        } catch (InvalidUUIDException | IOException | NoExistingIdColumnForAddOrUpdateDataOpExcpetion ex) {
             Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
         }
         return rowAffected;
