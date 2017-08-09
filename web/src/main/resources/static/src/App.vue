@@ -1,5 +1,5 @@
 <template>
-<div>
+<div id="app">
     <Navbar></Navbar>
     <router-view
       class="view"
@@ -7,6 +7,11 @@
       transition
       transition-mode="out-in">
     </router-view>
+    
+    <div class="ui container">
+      <my-vuetable></my-vuetable>
+    </div>
+    
   </div>
 </template>
 
@@ -14,11 +19,13 @@
     import User from './User.vue';
     import Navbar from './Navbar.vue';
     import Profile from './UserProfile.vue';
-//    import MainDiv from './MainDiv.vue';
+//    import Datatable from './Datatable.vue';
+    import MyVuetable from './Vuetable.vue'
     
     export default {
+	name: 'app',
 //        router,
-        components: {User,Navbar},
+        components: {User,Navbar,MyVuetable},
         data() {
             return {
                 
@@ -28,6 +35,15 @@
 </script>
 
 <style>
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+
 #ok {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
