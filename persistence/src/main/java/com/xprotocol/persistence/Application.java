@@ -9,7 +9,9 @@ package com.xprotocol.persistence;
  *
  * @author Tao Zhao
  */
+import com.xprotocol.persistence.dao.PersistenceRepository;
 import com.xprotocol.persistence.dao.RoleRepository;
+import com.xprotocol.persistence.dao.UserDetailsRepository;
 import com.xprotocol.persistence.dao.UserRepository;
 import com.xprotocol.persistence.dao.UserRolesRepository;
 import com.xprotocol.persistence.model.User;
@@ -43,6 +45,12 @@ public class Application implements CommandLineRunner {
     
     @Autowired
     private UserRolesRepository userRolesRepo;
+    
+    @Autowired
+    private UserDetailsRepository userDetailsRepo;
+    
+    @Autowired
+    private PersistenceRepository perRepo;
 
     public static void main(String[] args) throws Exception {
         new SpringApplicationBuilder(Application.class)
@@ -62,10 +70,22 @@ public class Application implements CommandLineRunner {
 
         if (args.length <= 0) {
             System.err.println("[Usage] java xxx.jar {insert name email | display}");
-            Map<String, Object> paramMap = new HashMap<>();
-            paramMap.put("email", "tinggia@xprotocol.com");
-            paramMap.put("active", 0);
-            userRepo.updateUserByUserId(2, paramMap);
+            Map<String, Object> valueMap = new HashMap<>();
+            valueMap.put("userId", "2");
+            valueMap.put("zipcode", "34567");
+            valueMap.put("address", "2288 Austin Ave");
+            try{
+                perRepo.addOrUpdateEntityWithVlues("userDetails", "userId", valueMap);
+            }
+            catch(Exception ex){
+                
+            }
+//            perRepo.updateEntityById("UserDetails", "userId", 1, valueMap);
+//              userDetailsRepo.addUserDetails(1, "0965 Houston Ave", "OK", "Norman", "73000", "Zoology", "University of Oklahoma");
+//            Map<String, Object> paramMap = new HashMap<>();
+//            paramMap.put("email", "tinggia@xprotocol.com");
+//            paramMap.put("active", 0);
+//            userRepo.updateUserByUserId(2, paramMap);
             
         } else {
             if (args[0].equalsIgnoreCase("insert")) {
