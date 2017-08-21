@@ -71,10 +71,7 @@
                     method: 'post',
                     url: '/api/signIn',
                     dataType: 'json',
-                    headers: {
-//                        "Authorization": make_base_auth(this.emaillogin, this.passwordlogin)
-                        headers: {'X-Requested-With': 'XMLHttpRequest'},
-                    },
+                    headers: {'X-Requested-With': 'XMLHttpRequest'},
                     auth: {
                         username: this.emaillogin,
                         password: this.passwordlogin
