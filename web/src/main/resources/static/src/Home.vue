@@ -1,7 +1,6 @@
 <template>
     <div>
-  <p>Hello {{ name }}</p>
-  <button v-on:click="alertName">alert!</button>
+        <br><h4>Check out the newly added protocols!</h4><br>
     </div>
 </template>
 

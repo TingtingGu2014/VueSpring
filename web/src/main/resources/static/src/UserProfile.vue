@@ -1,67 +1,146 @@
 <template id="sign-up-template">
-    <div class="col-lg-4 col-lg-off-4 col-md-4 col-md-offset-4 col-sm-12 col-xs-12 " >
-        <form id="signup-form">
-            <div class="form-group">
-                <label for="email" class="control-label">Email</label>
-                <input type="email" class="form-control" v-model='email' placeholder="name@domain.com">
-                <span v-if="email.length > 1">{{ email_message }}</span>
-            </div>
+    <div class="col-md-8 offset-md-2">
+        <span class="anchor" id="formUserEdit"></span>
+        <br>
 
-            <div class="form-group">
-                <label for="alias" class="control-label">Xprotocol Name</label>
-                <input type="text" class="form-control" v-model="alias">
+        <!-- form user info -->
+        <div class="card card-outline-secondary">
+            <div class="card-header">
+                <h6 class="mb-0">Update Your Profile</h6>
             </div>
-
-            <div class="form-group">
-                <label for="firstName" class="control-label">First Name</label>
-                <input type="text" class="form-control" v-model="firstName">
-                <label for="lastName" class="control-label">Last Name</label>
-                <input type="text" class="form-control" v-model="lastName">
+            <div class="card-block">
+                <form class="form" enctype="multipart/form-data" v-bind:action="'/api/userProfile/'+userUUID" method="post" name="userProfileInfo" role="form" autocomplete="off">
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label form-control-label">First name</label>
+                        <div class="col-lg-9">
+                            <input class="form-control" type="text" v-model="firstName">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label form-control-label">Last name</label>
+                        <div class="col-lg-9">
+                            <input class="form-control" type="text" v-model="lastName">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label form-control-label">Email</label>
+                        <div class="col-lg-9">
+                            <input class="form-control" type="email" v-model="email">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label form-control-label">Xprotocol Name</label>
+                        <div class="col-lg-9">
+                            <input class="form-control" type="text" v-model="alias">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label form-control-label">Major</label>
+                        <div class="col-lg-9">
+                            <input class="form-control" type="text" v-model="major">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label form-control-label">Affiliation</label>
+                        <div class="col-lg-9">
+                            <input class="form-control" type="text" v-model="affiliation">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label form-control-label">Address</label>
+                        <div class="col-lg-9">
+                            <input class="form-control" type="text" v-model="address">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label form-control-label">City</label>
+                        <div class="col-sm-4">
+                            <input class="form-control" type="text" v-model="city">
+                        </div>
+                        <label class="col-sm-1 col-form-label form-control-label">State</label>
+                        <div class="col-sm-2">
+                            <input class="form-control" type="text" v-model="state">
+                        </div>
+                        <label class="col-sm-2 col-form-label form-control-label">Zip code</label>
+                        <div class="col-sm-2">
+                            <input class="form-control" type="text" v-model="zipcode">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group row">
+                        <label class="col-md-4 col-form-label form-control-label"></label>
+                        <div class="col-md-8">
+                            <input type="reset" class="btn btn-secondary" value="Cancel">
+                            &nbsp;
+                            &nbsp;
+                            <input type="submit" class="btn btn-primary" value="Save Changes" v-on:click.prevent="onSubmit">
+                        </div>
+                    </div>
+                </form>
             </div>
-            
-            <div class="form-group">
-                <label for="major" class="control-label">Major</label>
-                <input type="text" class="form-control" v-model="major">
-                <label for="affiliation" class="control-label">Affiliation</label>
-                <input type="text" class="form-control" v-model="affiliation">
-                <label for="keywords" class="control-label">Key Words of Interest</label>
-                <textarea v-model="keywords" placeholder="add key words of interest"></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="createdDate" class="control-label">Created Date</label>
-                <input type="text" class="form-control" v-model="createdDate">
-                <label for="active" class="control-label">Active User</label>
-                <input type="text" class="form-control" v-model="active">
-            </div>
-            
-            <div class="form-group">
-                <label for="address" class="control-label">Street Address</label>
-                <input type="text" class="form-control" v-model="address">
-                <label for="city" class="control-label">City</label>
-                <input type="text" class="form-control" v-model="city">
-                <label for="state" class="control-label">State</label>
-                <input type="text" class="form-control" v-model="state">
-                <label for="zipcode" class="control-label">Zip Code</label>
-                <input type="text" class="form-control" v-model="zipcode">
-            </div>
-
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary" v-on:click="signupsubmit" >Update</button>
-            </div>	
-        </form>
+        </div>
     </div>
 </template>
 
 <script>
 
-                
+    import { mapGetters, mapMutations } from 'vuex'
+    
+    var Utils = require('./Utils')
+            
     export default {
         data: function() {
             return {
                 email: '',
                 alias: '',
-                password: '',
+                userUUID: '',
+                createdDate: '',
+                firstName: '',
+                lastName: '',
+                major: '',
+                address: '',
+                affiliation: '',
+                state: '',
+                city: '',
+                zipcode: '',
+            }
+        },
+        computed: {
+            ...mapGetters({
+                isUserDetailsFetched: 'userModule/isUserDetailsFetched',
+                getUserDetails: 'userModule/getUserDetails',
+            })
+        },
+        created: function() {//alert('profile is being created!');           
+            
+            var loggedIn = !Utils.isEmpty(Utils.readCookie('loggedIn'));
+            if(loggedIn === false){
+                document.location.href = '/login';
+            }
+            else{
+                var details = this.getUserDetails
+                if(Utils.isEmpty(details)){
+                    axios({
+                        method: 'get',
+                        dataType: 'json',
+                        url: '/api/userProfile/'+localStorage.userUUID,
+                    }).then( (response) => {
+                        if(response.status === 200){
+                            var data = response.data
+                            this.resetUserProfile(data)
+                        }
+                        else{
+                            alert("not 200");
+                            return;
+                        }     
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                }
+                else{
+                    
+                }
             }
         },
         watch: {
@@ -79,28 +158,47 @@
                     return false;
                 }
             },
-            signupsubmit: function (message, event) {
-                if (event){
-                    event.preventDefault()
-                }
-                axios({
-                    method: 'post',
-                    url: '/user',
-                    params: {
-                    email: this.email,
-                            password: this.password,
-                            alias: this.alias
+            onSubmit: function (message, event) {
+                
+                var qs = require('qs');
+                axios.post('/api/userProfile/'+localStorage.userUUID, qs.stringify(this.$data))
+                .then( (response) => {
+                    if(response.status === 200){
+                        alert('Your profile information has been updated!')
+                        var data = response.data
+                        this.resetUserProfile(data)
                     }
-                }).then(function (response) {
-                    console.log(response);
+                            
                 })
                 .catch(function (error) {
+                    alert('Your profile is NOT updated, sorry')
                     console.log(error);
                 });
+            },           
+            resetUserProfile: function (data){
+                var details = data.userDetails
+                var user = data.user
+                if(!Utils.isEmpty(details) && !this.isUserDetailsFetched){
+                    this.setUserDetails(data.userDetails)
+                    this.major = details.major
+                    this.address = details.address
+                    this.affiliation = details.affiliation
+                    this.city = details.city
+                    this.state = details.state
+                    this.zipcode = details.zipcode
+                }                            
+                this.email = user.email
+                this.alias = user.alias
+                this.userUUID = user.userUUID
+                this.createdDate = user.createdDate
+                this.firstName = user.firstName
+                this.lastName = user.lastName                            
+                this.setDetailsFetched(true)
             },
-            set_current_user: function() {
-                alert('new user!');
-            }
+            ...mapMutations({                
+                setUserDetails: 'userModule/setUserDetails',
+                setDetailsFetched: 'userModule/setDetailsFetched',
+            }),
         }
     }
 </script>

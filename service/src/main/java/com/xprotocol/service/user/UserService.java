@@ -7,6 +7,7 @@ package com.xprotocol.service.user;
 
 import com.xprotocol.persistence.model.User;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -29,9 +30,15 @@ public interface UserService {
     User findUserByEmail(String email);
 
     User findUserById(int userId);
+    
+    User findUserByUUID(String userUUIDStr);
 
     int inactivateUserByUserEmail(String email);
 
     int inactivateUserByUserId(int userId);
+    
+    int inactivateUserByUserUUID(String userUUIDStr);
+    
+    void updateUserByUserUUID(String userUUIDStr, Map<String, Object> valueMap);
     
 }

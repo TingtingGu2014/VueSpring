@@ -13,18 +13,20 @@ public class User {
     private String email;
     private String password;
     private String alias;
+    private String userUUID;
     private Date createdDate;
     private boolean active;
 
     public User(){}
 
-    public User(int userId, String firstName, String lastName, String email, String password, String alias, Date createdDate, boolean active) {
+    public User(int userId, String firstName, String lastName, String email, String password, String alias, String userUUID, Date createdDate, boolean active) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.alias = alias;
         this.createdDate = createdDate;
+        this.userUUID = userUUID;
         this.active = active;
         this.password = password;
     }
@@ -45,12 +47,20 @@ public class User {
         this.active = active;
     }
 
+    public void setUserUUID(String userUUID) {
+        this.userUUID = userUUID;
+    }
+
     public String getLastName() {
         return lastName;
     }
 
     public String getAlias() {
         return alias;
+    }
+
+    public String getUserUUID() {
+        return userUUID;
     }
 
     public boolean isActive() {
@@ -64,6 +74,7 @@ public class User {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
+                ", UUID='" + userUUID + '\'' +
                 ", date=" + createdDate.toString() +
                 '}';
     }

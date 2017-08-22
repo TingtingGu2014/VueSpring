@@ -1,23 +1,33 @@
 import Vue from 'vue'
-//引用路由插件
 import VueRouter from 'vue-router'
+import Vuex from 'vuex'
+import Vuetable from 'vuetable-2'
+import VuePassword from 'vue-password'
 
-//使用路由插件
 Vue.use(VueRouter)
-
-//引入组件  
+Vue.use(Vuex)
+Vue.use(Vuetable)
+Vue.component(VuePassword)
+ 
 import App from './App.vue'
 import routejs from './Router.js'
+import userModule from './userModule.js';
 
 
-//使用路由规则
 const router = new VueRouter({
   mode: 'history',
   routes: routejs
 })
-//加载路由规则
+
+const store = new Vuex.Store({
+    modules: {
+        userModule : userModule,
+    },
+});
+
 new Vue({
     router,
+    store,
     el: '#app',
     render:h => h(App)
 })
