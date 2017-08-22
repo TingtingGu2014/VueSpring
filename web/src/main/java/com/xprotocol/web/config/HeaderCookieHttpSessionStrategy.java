@@ -74,15 +74,19 @@ public final class HeaderCookieHttpSessionStrategy implements MultiHttpSessionSt
         @Override
 	public String getRequestedSessionId(HttpServletRequest request) {
             
-            String sessionId = request.getHeader(headerName);
-            if(sessionId != null && !sessionId.isEmpty()) {
-                return sessionId;
+            String sessionId = null;
+            String contextUrl = XprotocolWebUtils.getContextUrlFromRequest(request);
+            
+            if(contextUrl.startsWith("/rest")){
+                sessionId = request.getHeader(headerName);                
             }
-
-        
-            Map<String, String> sessionIds = getSessionIds(request);
-            String sessionAlias = getCurrentSessionAlias(request);
-            return sessionIds.get(sessionAlias);
+            else {
+                Map<String, String> sessionIds = getSessionIds(request);
+                String sessionAlias = getCurrentSessionAlias(request);
+                sessionId = sessionIds.get(sessionAlias);
+            }
+            
+            return sessionId;
 	}
 
         @Override

@@ -1,5 +1,6 @@
 package com.xprotocol.web.config;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -16,6 +19,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
     @Autowired
     private DataSource dataSource;
+    
+    private RequestMatcher csrfRequestMatcher = new RequestMatcher() {
+
+      // Disable CSFR protection on the following urls:
+      private AntPathRequestMatcher[] requestMatchers = {
+          new AntPathRequestMatcher("/"),
+          new AntPathRequestMatcher("/home"),
+          new AntPathRequestMatcher("/dist/**"),
+//          new AntPathRequestMatcher("/logout"),
+          new AntPathRequestMatcher("/rest/**")
+      };
+
+      @Override
+      public boolean matches(HttpServletRequest request) {
+        // If the request match one url the CSFR protection will be disabled
+        for (AntPathRequestMatcher rm : requestMatchers) {
+          if (rm.matches(request)) { return false; }
+        }
+        return true;
+      } // method matches
+
+    };
 
 //    @Override
 //    public void configure(WebSecurity web) throws Exception {
@@ -50,7 +75,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().httpBasic()
                 .and().formLogin().usernameParameter("email").passwordParameter("password").loginPage("/login").defaultSuccessUrl("/home")
                 .and().logout().logoutSuccessUrl("/home")
-                .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+                .and().csrf().requireCsrfProtectionMatcher(csrfRequestMatcher).csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 //                .and().csrf().disable();
     }
 }

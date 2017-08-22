@@ -29,7 +29,7 @@ public class UserSessionInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
         System.out.println("PreHandle is done!");
-        String contextUrl = getContextUrlFromRequest(request);
+        String contextUrl = XprotocolWebUtils.getContextUrlFromRequest(request);
         if(!UtilsStringHelper.isEmptyString(contextUrl)){
             String method = request.getMethod();
             if(!contextUrl.equals("user")){
@@ -116,14 +116,6 @@ public class UserSessionInterceptor implements HandlerInterceptor {
 //            token.setPath("/");
 //            response.addCookie(token);
         }
-    }
-    
-    private String getContextUrlFromRequest(HttpServletRequest request){
-        String contextUrl = request.getServletPath();
-        if(!contextUrl.startsWith("/") && contextUrl.contains("/")){
-            contextUrl = contextUrl.split("/")[1];
-        }
-        return contextUrl;
     }
     
 }
