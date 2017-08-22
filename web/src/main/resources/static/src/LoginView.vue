@@ -116,7 +116,7 @@
                     var status = response.status;
                     var data = response.data;
 
-                    if(status == 200){
+                    if(status == 200 || status == 204){
                         localStorage.userEmail = '';
                         localStorage.userName = '';
                         localStorage.userUUID = '';
