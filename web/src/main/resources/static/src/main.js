@@ -25,6 +25,15 @@ const store = new Vuex.Store({
     },
 });
 
+//axios.interceptors.request.use(function (config) {
+//    alert('ok');
+//    return config;
+//  }, function (error) {
+//    // Do something with request error
+//    alert('not ok');
+//    return Promise.reject(error);
+//  });
+
 new Vue({
     router,
     store,

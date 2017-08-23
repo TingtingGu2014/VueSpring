@@ -8,9 +8,9 @@
       transition-mode="out-in">
     </router-view>
     
-    <div class="ui container">
+<!--    <div class="ui container">
       <my-vuetable></my-vuetable>
-    </div>
+    </div>-->
     
   </div>
 </template>

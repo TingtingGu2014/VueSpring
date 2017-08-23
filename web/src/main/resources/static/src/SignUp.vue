@@ -44,6 +44,12 @@
 
 <script>
     var Utils = require('./Utils')
+    
+    var loggedIn = !Utils.isEmpty(Utils.readCookie('loggedIn'))
+    if(loggedIn == true){
+        document.location.href = '/home'
+    }
+    
     import VuePassword from 'vue-password'
     export default {
         data: function() {
@@ -61,7 +67,10 @@
         watch: {
             email: function(value) {
                 this.validate_email(value, 'email_message')
-            }
+            },
+            '$route' (to, from) {
+                this.path = to.meta.signUpType
+            },
         },
         methods: {
             validate_email (value, email_message) {

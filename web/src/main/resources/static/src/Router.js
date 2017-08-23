@@ -9,8 +9,8 @@ const PageNotFound = resolve => require(['./PageNotFound.vue'], resolve);
 const routes = [
     { path: '/', name: 'home', component: Home },
     { path: '/userProfile/:userUUID' , name: 'userProfile', component: UserProfile },
-    { path: '/signup/' , name: 'signUp', component: SignUp },
-    { path: '/login' , name: 'login' , component: SignUp},
+    { path: '/signup/' , name: 'signUp', component: SignUp,  meta:{signUpType: 'signup'}},
+    { path: '/login' , name: 'login', component: SignUp, meta:{signUpType: 'login'}},
     { path: '/home', redirect: '/' },
     { path: "*", component: PageNotFound }
 ]
