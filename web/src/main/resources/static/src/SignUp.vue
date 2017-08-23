@@ -20,8 +20,11 @@
             <br>
             <div class="form-group row">
                 <label for="password" class="col-sm-2 col-form-label">Password:</label>
-                <div class="col-sm-10">                
+                <div class="col-sm-10" v-if="path.includes('signup')">                
                     <vue-password v-model="password" class="form-control" :user-inputs="[email]" placeholder="Password"></vue-password>
+                </div>
+                <div class="col-sm-10" v-else>                
+                    <input type="password" class="form-control" v-model="password">
                 </div>
             </div>
             <br>
@@ -43,6 +46,8 @@
 </template>
 
 <script>
+    import { mapGetters, mapMutations } from 'vuex'
+    
     var Utils = require('./Utils')
     
     var loggedIn = !Utils.isEmpty(Utils.readCookie('loggedIn'))
@@ -60,6 +65,14 @@
                 password2: '',
                 path: window.location.pathname,
             }
+        },
+        computed: {
+            ...mapGetters({
+                isUserInfoFetched: 'userModule/isUserInfoFetched',
+                isUserDetailsFetched: 'userModule/isUserDetailsFetched',
+                getUserInfo: 'userModule/getUserInfo',
+                getUserDetails: 'userModule/getUserDetails',
+            })
         },
         components: {
             VuePassword,
@@ -84,14 +97,21 @@
             },
             signupsubmit: function (message, event) {
             
-                if(Utils.isEmpty(this.email) || Utils.isEmpty(this.password) || Utils.isEmpty(this.password2)){
-                    alert("Please fill your complete information before registration.");
-                    return;
+                if(this.path.indexOf('signup') >= 0){
+                    if(Utils.isEmpty(this.email) || Utils.isEmpty(this.password) || Utils.isEmpty(this.password2)){
+                        alert("Please fill your complete information before registration.");
+                        return;
+                    }
+                    if(this.password != this.password2){
+                        alert("The two passwords are different.");
+                        return;
+                    }
                 }
-                
-                if(this.password != this.password2){
-                    alert("The two passwords are different.");
-                    return;
+                else{
+                    if(Utils.isEmpty(this.email) || Utils.isEmpty(this.password)){
+                        alert("Please fill your complete information before registration.");
+                        return;
+                    }
                 }
                 
                 if (event){
@@ -109,7 +129,7 @@
                     url = '/api/signIn'
                 }
                 axios({
-                    method: 'get',
+                    method: 'POST',
                     url: url,
                     dataType: 'json',
                     headers: {
@@ -126,9 +146,11 @@
 
                     if(status == 200){
 //                        alert("200");
-                        localStorage.userEmail = data.email;
-                        localStorage.userName = data.alias;
-                        localStorage.userUUID = data.userUUID;
+                        localStorage.userEmail = data.email
+                        localStorage.userName = data.alias
+                        localStorage.userUUID = data.userUUID
+                        this.setUserInfo(data)
+                        this.setUserInfoFetched(true)
                         this.setDetailsFetched(false)
                         document.location.href = '/home';
                     }
@@ -143,7 +165,13 @@
             },
             set_current_user: function() {
                 alert('new user!');
-            }
+            },
+            ...mapMutations({                
+                setUserInfo: 'userModule/setUserInfo',
+                setUserDetails: 'userModule/setUserDetails',
+                setDetailsFetched: 'userModule/setDetailsFetched',
+                setUserInfoFetched: 'userModule/setUserInfoFetched',
+            }),
         }
     }
 </script>
