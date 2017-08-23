@@ -12,14 +12,18 @@ const userModule = {
     alias: '',
     email: '',
     detailsFetched: false,
+    userInfoFetched: false,
+    userInfo: null,
     details: null,
   },
   getters: {
     getUserAlias: state => state.alias,
     getUserEmail: state => state.email,
     isUserDetailsFetched: state => state.detailsFetched,
+    isUserInfoFetched: state => state.userInfoFetched,
     getUserUUID: state => state.userUUID,
     getUserDetails: state => state.details,
+    getUserInfo: state => state.userInfo,
   },
   mutations: {
     setUserUUID(state, newUserUUID) {
@@ -31,11 +35,17 @@ const userModule = {
     setDetailsFetched(state, newDetailsFetched) {
       state.detailsFetched = newDetailsFetched
     },
+    setUserInfoFetched(state, newUserInfoFetched) {
+      state.userInfoFetched = newUserInfoFetched
+    },
     setUserEmail(state, newUserEmail) {
       state.email = newUserEmail
     },
     setUserDetails(state, newDetails) {
       state.details = newDetails
+    },
+    setUserInfo(state, newUserInfo) {
+      state.userInfo = newUserInfo
     },
   }
 }

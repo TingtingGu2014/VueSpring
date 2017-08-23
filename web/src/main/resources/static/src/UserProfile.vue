@@ -107,7 +107,9 @@
         },
         computed: {
             ...mapGetters({
+                isUserInfoFetched: 'userModule/isUserInfoFetched',
                 isUserDetailsFetched: 'userModule/isUserDetailsFetched',
+                getUserInfo: 'userModule/getUserInfo',
                 getUserDetails: 'userModule/getUserDetails',
             })
         },
@@ -118,8 +120,8 @@
                 document.location.href = '/login';
             }
             else{
-                var details = this.getUserDetails
-                if(Utils.isEmpty(details)){
+                var detailsFetched = this.isUserDetailsFetched
+                if(!detailsFetched == true){
                     axios({
                         method: 'get',
                         dataType: 'json',
@@ -138,8 +140,23 @@
                         console.log(error);
                     });
                 }
-                else{
-                    
+                else{                    
+                    if(detailsFetched == true){
+                        var user = this.getUserInfo
+                        this.email = user.email
+                        this.alias = user.alias
+                        this.userUUID = user.userUUID
+                        this.createdDate = user.createdDate
+                        this.firstName = user.firstName
+                        this.lastName = user.lastName    
+                    }
+                    var details = this.getUserDetails
+                    this.major = details.major
+                    this.address = details.address
+                    this.affiliation = details.affiliation
+                    this.city = details.city
+                    this.state = details.state
+                    this.zipcode = details.zipcode                                                            
                 }
             }
         },
@@ -178,15 +195,16 @@
             resetUserProfile: function (data){
                 var details = data.userDetails
                 var user = data.user
-                if(!Utils.isEmpty(details) && !this.isUserDetailsFetched){
-                    this.setUserDetails(data.userDetails)
+                this.setUserDetails(details)
+                if(!Utils.isEmpty(details)){                    
                     this.major = details.major
                     this.address = details.address
                     this.affiliation = details.affiliation
                     this.city = details.city
                     this.state = details.state
                     this.zipcode = details.zipcode
-                }                            
+                }                         
+                this.setUserInfo(user)
                 this.email = user.email
                 this.alias = user.alias
                 this.userUUID = user.userUUID
@@ -194,10 +212,13 @@
                 this.firstName = user.firstName
                 this.lastName = user.lastName                            
                 this.setDetailsFetched(true)
+                this.setUserInfoFetched(true)
             },
             ...mapMutations({                
+                setUserInfo: 'userModule/setUserInfo',
                 setUserDetails: 'userModule/setUserDetails',
                 setDetailsFetched: 'userModule/setDetailsFetched',
+                setUserInfoFetched: 'userModule/setUserInfoFetched',
             }),
         }
     }

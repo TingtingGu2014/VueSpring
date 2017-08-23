@@ -25,5 +25,5 @@ public interface UserDetailsService {
     @Transactional
     void updateUserDetailsByUserDetailsId(int userDetailsId, Map<String, Object> valueMap);
     
-    void addOrUpdateUserDetailsWithUserId(UserDetails details) throws NoExistingIdColumnForAddOrUpdateDataOpExcpetion;
+    int addOrUpdateUserDetailsWithUserId(UserDetails details) throws NoExistingIdColumnForAddOrUpdateDataOpExcpetion;
 }

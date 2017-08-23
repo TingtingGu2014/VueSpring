@@ -13,6 +13,7 @@ import com.xprotocol.service.user.UserDetailsService;
 import com.xprotocol.service.user.UserService;
 import com.xprotocol.service.exceptions.UserDoesNotExistException;
 import com.xprotocol.service.persistence.PersistenceService;
+import com.xprotocol.utils.UtilsHelper;
 import com.xprotocol.utils.Validators;
 import com.xprotocol.web.exceptions.IncompleteRegistrationInformationException;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.Cookie;
@@ -202,7 +204,7 @@ public class UserController {
     
     @ResponseBody
     @RequestMapping(value = "/api/userProfile/{userUUIDStr}", method = RequestMethod.POST)
-    public int updateUserProfile(HttpServletRequest request, HttpServletResponse response, @PathVariable("userUUIDStr") String userUUIDStr, @ModelAttribute UserDetails details) {
+    public Map<String, Object> updateUserProfile(HttpServletRequest request, HttpServletResponse response, @PathVariable("userUUIDStr") String userUUIDStr, @ModelAttribute UserDetails details) {
         
         int rowAffected = -1;
         
@@ -212,31 +214,35 @@ public class UserController {
             }
             
             User user = userSrv.findUserByUUID(userUUIDStr);
+            Map<String, Object> userProfileMap = new HashMap<>();
    
             if(null != user){
 
                 Map<String, Object> valueMap = new HashMap<>();
+                UUID userUUID = UUID.fromString(userUUIDStr);
                 valueMap.put("email", (String)request.getParameter("email"));
                 valueMap.put("firstName", (String)request.getParameter("firstName"));
                 valueMap.put("lastName", (String)request.getParameter("lastName"));
                 valueMap.put("alias", (String)request.getParameter("alias"));
-                userSrv.updateUserByUserUUID(userUUIDStr, valueMap);
-                
-                details.setUserId(user.getUserId());
-                userDetailsSrv.addOrUpdateUserDetailsWithUserId(details);
-                valueMap.clear();
-                valueMap.put("address", (String)request.getParameter("address"));
-                valueMap.put("city", (String)request.getParameter("city"));
-                valueMap.put("state", (String)request.getParameter("state"));
-                valueMap.put("zipcode", (String)request.getParameter("zipcode"));
-                valueMap.put("major", (String)request.getParameter("major"));
-                valueMap.put("affiliation", (String)request.getParameter("affiliation"));
+                valueMap.put("userUUID", UtilsHelper.getBytesFromUUID(userUUID));
                 valueMap.put("userId", user.getUserId());
-   
+                valueMap.put("password", user.getPassword());
+                rowAffected = persistenceSrv.addOrUpdateEntityWithVlues("users", "userId", valueMap);
+                
                 if(rowAffected != -1){
+                    details.setUserId(user.getUserId());
+                    rowAffected = userDetailsSrv.addOrUpdateUserDetailsWithUserId(details);
+                }
+   
+                if(rowAffected == -1){
                     response.sendError(500, "Cannot update or add the user detail information for UUID: "+userUUIDStr+"! ");
                 }
-                return rowAffected;
+                else{                    
+                    valueMap.put("createdDate", user.getCreatedDate());
+                    userProfileMap.put("user", valueMap);                    
+                    userProfileMap.put("userDetails", details);
+                }
+                return userProfileMap;
             }
             else{
                 throw new UserDoesNotExistException("The user with UUID = " + userUUIDStr + "does NOT exist!");
@@ -249,9 +255,14 @@ public class UserController {
                 Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
             }
         } catch (InvalidUUIDException | IOException | NoExistingIdColumnForAddOrUpdateDataOpExcpetion ex) {
+            try {
+                response.sendError(400, ex.getMessage());
+            } catch (IOException ex1) {
+                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
+            }
             Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return rowAffected;
+        return null;
     }
     
     /**

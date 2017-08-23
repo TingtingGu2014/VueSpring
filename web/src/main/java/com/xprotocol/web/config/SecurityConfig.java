@@ -22,22 +22,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
     private RequestMatcher csrfRequestMatcher = new RequestMatcher() {
 
-      // Disable CSFR protection on the following urls:
       private AntPathRequestMatcher[] requestMatchers = {
-          new AntPathRequestMatcher("/"),
-          new AntPathRequestMatcher("/home"),
-          new AntPathRequestMatcher("/dist/**"),
+//          new AntPathRequestMatcher("/"),
+//          new AntPathRequestMatcher("/home"),
+//          new AntPathRequestMatcher("/dist/**"),
 //          new AntPathRequestMatcher("/logout"),
-          new AntPathRequestMatcher("/rest/**")
+          new AntPathRequestMatcher("/api/**")
       };
 
       @Override
       public boolean matches(HttpServletRequest request) {
         // If the request match one url the CSFR protection will be disabled
         for (AntPathRequestMatcher rm : requestMatchers) {
-          if (rm.matches(request)) { return false; }
+          if (rm.matches(request)) { return true; }
         }
-        return true;
+        return false;
       } // method matches
 
     };

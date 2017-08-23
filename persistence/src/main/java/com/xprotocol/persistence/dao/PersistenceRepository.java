@@ -92,7 +92,7 @@ public class PersistenceRepository {
     }
     
     @Transactional
-    public void updateEntityById(String tableName, String idColName, Object idValue, Map<String, Object> valueMap){
+    public int updateEntityById(String tableName, String idColName, Object idValue, Map<String, Object> valueMap){
 
         List<Object> paramList = new ArrayList<>();
         String sql = "UPDATE " + tableName + " SET ";
@@ -106,6 +106,6 @@ public class PersistenceRepository {
         
         paramList.add(idValue);
         Object[] params = paramList.toArray(new Object[paramList.size()]);        
-        jdbcTemplate.update(sql, params);
+        return jdbcTemplate.update(sql, params);
     }
 }
