@@ -49,12 +49,20 @@
             return {
                 loggedIn: loggedIn,
                 userEmail: localStorage.userEmail,
-                userAlias: localStorage.userAlias,
+                userAlias: localStorage.userName,
                 userUUID: localStorage.userUUID,
                 emaillogin: '',
                 passwordlogin: '',
             }
-        },        
+        },     
+        computed: {
+            ...mapGetters({
+                isUserInfoFetched: 'userModule/isUserInfoFetched',
+                isUserDetailsFetched: 'userModule/isUserDetailsFetched',
+                getUserInfo: 'userModule/getUserInfo',
+                getUserDetails: 'userModule/getUserDetails',
+            })
+        },
         methods: {
             loginsubmit: function (message, event) {
                 
@@ -83,15 +91,17 @@
 
                     if(status == 200){
 //                        alert("200");
-                        localStorage.userEmail = data.email;
-                        localStorage.userName = data.alias;
-                        localStorage.userUUID = data.userUUID;
-                        this.loggedIn = true;
-                        this.userEmail = data.email;
-                        this.userAlias = data.alias;
-                        this.userUUID = data.userUUID;    
+                        localStorage.userEmail = data.email
+                        localStorage.userName = data.alias
+                        localStorage.userUUID = data.userUUID
+                        this.loggedIn = true
+                        this.userEmail = data.email
+                        this.userAlias = data.alias
+                        this.userUUID = data.userUUID 
                         this.setDetailsFetched(false)
-                        document.location.href = '/home';
+                        this.setUserInfoFetched(true)
+                        this.setUserInfo(data)
+                        document.location.href = '/home'
                     }
                     else{
                         alert("not 200");
@@ -128,8 +138,10 @@
                         this.userEmail = '';
                         this.userAlias = '';
                         this.userUUID = '';
-                        this.setDetails(null);
+                        this.setUserDetails(null);
                         this.setDetailsFetched(false)
+                        this.setUserInfoFetched(false)
+                        this.setUserInfo(null)
                         document.location.href = '/home';
                     }
                     else{
@@ -143,8 +155,10 @@
             
             },
             ...mapMutations({                
-                setUserDetails: 'userModule/setDetails',
+                setUserInfo: 'userModule/setUserInfo',
+                setUserDetails: 'userModule/setUserDetails',
                 setDetailsFetched: 'userModule/setDetailsFetched',
+                setUserInfoFetched: 'userModule/setUserInfoFetched',
             }),
         }
     }
@@ -152,8 +166,6 @@
     function make_base_auth(user, password) {
         var tok = 'Basic ' + user + ':' + password;
         return tok;
-//        var hash = btoa(tok);
-//        return 'Basic ' + hash;
     }
 </script>
 
