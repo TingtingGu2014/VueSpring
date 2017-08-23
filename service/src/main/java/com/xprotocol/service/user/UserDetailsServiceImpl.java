@@ -40,8 +40,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Override
-    public void addOrUpdateUserDetailsWithUserId(UserDetails details) throws NoExistingIdColumnForAddOrUpdateDataOpExcpetion {
-        userDetailsRepo.addOrUpdateUserDetailsWithUserId(details);
+    public int addOrUpdateUserDetailsWithUserId(UserDetails details) throws NoExistingIdColumnForAddOrUpdateDataOpExcpetion {
+        return userDetailsRepo.addOrUpdateUserDetailsWithUserId(details);
     }
     
 }

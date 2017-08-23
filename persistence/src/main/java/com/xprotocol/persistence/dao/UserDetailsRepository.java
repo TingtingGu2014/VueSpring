@@ -71,7 +71,7 @@ public class UserDetailsRepository {
         jdbcTemplate.update(sql, params);
     }
     
-    public void addOrUpdateUserDetailsWithUserId(UserDetails details) throws NoExistingIdColumnForAddOrUpdateDataOpExcpetion{
+    public int addOrUpdateUserDetailsWithUserId(UserDetails details) throws NoExistingIdColumnForAddOrUpdateDataOpExcpetion{
         
         Map<String, Object> valueMap = new HashMap<>();
         valueMap.put("userId", details.getUserId());
@@ -82,6 +82,6 @@ public class UserDetailsRepository {
         valueMap.put("state", details.getState());
         valueMap.put("zipcode", details.getZipcode());
         
-        persistenceRepo.addOrUpdateEntityWithVlues("userDetails", "userId", valueMap);
+        return persistenceRepo.addOrUpdateEntityWithVlues("userDetails", "userId", valueMap);
     }
 }
