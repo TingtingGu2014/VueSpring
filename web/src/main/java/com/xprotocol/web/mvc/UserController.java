@@ -83,6 +83,7 @@ public class UserController {
             }
             int id = userSrv.addUser(user.getEmail(), user.getAlias(), user.getPassword());
             user.setUserId(id);
+            user.setPassword("");
         }
         catch(IncompleteRegistrationInformationException ex){
             try {
@@ -129,6 +130,7 @@ public class UserController {
             }
             try{
                 user = userSrv.userLogin(email, password);
+                user.setPassword("");
                 Cookie loggedIn = new Cookie("loggedIn", "true");
                 loggedIn.setMaxAge(60*60);
                 loggedIn.setPath("/");
@@ -179,6 +181,7 @@ public class UserController {
             User user = userSrv.findUserByUUID(userUUIDStr);
             if(null != user){
                 Map<String, Object> userProfileMap = new HashMap<>();
+                user.setPassword("");
                 userProfileMap.put("user", user);
                 UserDetails details = userDetailsSrv.findUserDetailsByUserId(user.getUserId());
                 if(null != details){
@@ -239,6 +242,7 @@ public class UserController {
                 }
                 else{                    
                     valueMap.put("createdDate", user.getCreatedDate());
+                    valueMap.put("password", "");
                     userProfileMap.put("user", valueMap);                    
                     userProfileMap.put("userDetails", details);
                 }
@@ -293,6 +297,7 @@ public class UserController {
             }
             try{
                 user = userSrv.userLogin(email, password);
+                user.setPassword("");
                 Cookie loggedIn = new Cookie("loggedIn", "true");
                 loggedIn.setMaxAge(60*60);
                 loggedIn.setPath("/");
