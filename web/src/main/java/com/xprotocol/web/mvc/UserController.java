@@ -14,6 +14,7 @@ import com.xprotocol.service.user.UserService;
 import com.xprotocol.service.exceptions.UserDoesNotExistException;
 import com.xprotocol.service.persistence.PersistenceService;
 import com.xprotocol.utils.UtilsHelper;
+import com.xprotocol.utils.UtilsStringHelper;
 import com.xprotocol.utils.Validators;
 import com.xprotocol.web.exceptions.IncompleteRegistrationInformationException;
 import java.io.IOException;
@@ -129,7 +130,7 @@ public class UserController {
                 throw new IncompleteRegistrationInformationException("The user email is NOT valid!");
             }
             try{
-                user = userSrv.userLogin(email, password);
+                List<Map<String,Object>> userInfo = userSrv.userLogin(email, password);
                 user.setPassword("");
                 Cookie loggedIn = new Cookie("loggedIn", "true");
                 loggedIn.setMaxAge(60*60);
@@ -277,8 +278,8 @@ public class UserController {
      * @return : logged in user
      */
     @RequestMapping(value="/api/signIn", method=RequestMethod.POST)
-    public User singIn(HttpServletRequest request, HttpServletResponse response) {
-        User user = null;
+    public Map<String,Object> singIn(HttpServletRequest request, HttpServletResponse response) {
+        Map<String,Object> userInfoMap = new HashMap<>();
         String authCredentials = request.getHeader("Authorization");
         
         try{
@@ -296,12 +297,38 @@ public class UserController {
                 throw new IncompleteRegistrationInformationException("The user email is NOT valid!");
             }
             try{
-                user = userSrv.userLogin(email, password);
-                user.setPassword("");
-                Cookie loggedIn = new Cookie("loggedIn", "true");
-                loggedIn.setMaxAge(60*60);
-                loggedIn.setPath("/");
-                response.addCookie(loggedIn);
+                List<Map<String,Object>> userInfoList = userSrv.userLogin(email, password);
+                if(userInfoList.size() > 0){
+                    int size = userInfoList.size();                    
+                    String roles = "";
+                    for(int i = 0; i < size; i++){
+                        if(null == userInfoList.get(i)){
+                            continue;
+                        }
+                        if(i ==0){
+                            userInfoMap = userInfoList.get(i);
+                        }
+                        else{
+                            String roleName = (String)userInfoList.get(i).get("roleName");
+                            if(!UtilsStringHelper.isEmptyString(roleName)){
+                                roles += roleName + ",";
+                            }
+                        }                        
+                    }
+                    if(roles.length() > 0){
+                        roles = roles.substring(0, roles.length()-1);
+                    }
+                    String userRoles = (String)userInfoMap.get("roleName");
+                    userRoles += "," + roles;
+                    userInfoMap.put("roleName", userRoles);
+                    Cookie loggedIn = new Cookie("loggedIn", "true");
+                    loggedIn.setMaxAge(60*60);
+                    loggedIn.setPath("/");
+                    response.addCookie(loggedIn);
+                }
+                else{
+                    throw new UserDoesNotExistException("Cannot find the user with email: "+email+".\n");
+                }
             }
             catch(Exception ex){
                 throw new UserDoesNotExistException("Cannot find the user with email: "+email+".\nException message: "+ex.getMessage());
@@ -321,6 +348,6 @@ public class UserController {
                 Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
             }
         }
-        return user;
+        return userInfoMap;
     }
 }

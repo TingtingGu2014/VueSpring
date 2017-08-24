@@ -75,10 +75,13 @@ public class UserRepository {
     }
     
     @Transactional(readOnly=true)
-    public User userLogin(String email, String password) {
-        return jdbcTemplate.queryForObject(
-                "select * from users where email=? AND password=? AND active=? ",
-                new Object[]{email, password, true}, new UserRowMapper());
+    public List<Map<String,Object>> userLogin(String email, String password) {
+        return jdbcTemplate.queryForList(
+                " SELECT * FROM users " +
+                " LEFT JOIN userRoles ON users.userId = userRoles.userId " +
+                " INNER JOIN roles ON userRoles.roleId = roles.roleId " +
+                " WHERE email=? AND password=? AND active=? ",
+                new Object[]{email, password, true});
     }
 
     @Transactional(readOnly=true)

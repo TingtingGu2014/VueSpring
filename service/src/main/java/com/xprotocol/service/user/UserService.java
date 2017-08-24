@@ -25,7 +25,7 @@ public interface UserService {
 
     List<User> findAll();
     
-    User userLogin(String email, String password);
+    List<Map<String,Object>> userLogin(String email, String password);
 
     User findUserByEmail(String email);
 

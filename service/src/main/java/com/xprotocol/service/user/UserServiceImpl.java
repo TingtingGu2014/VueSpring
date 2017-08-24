@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
     }
     
     @Override
-    public User userLogin(String email, String password) {
+    public List<Map<String,Object>> userLogin(String email, String password) {
         return userRepo.userLogin(email, password);
     }
 
