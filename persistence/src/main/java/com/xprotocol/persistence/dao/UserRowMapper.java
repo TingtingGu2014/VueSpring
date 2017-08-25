@@ -22,6 +22,7 @@ class UserRowMapper implements RowMapper<User>
         user.setLastName(rs.getString("lastName"));
         user.setEmail(rs.getString("email"));
         user.setAlias(rs.getString("alias"));
+        user.setRoles(rs.getString("roles"));
         user.setUserUUID(UtilsHelper.getUUIDFromBytes(rs.getBytes("userUUID")).toString());
         user.setCreatedDate(rs.getDate("createdDate"));
         user.setActive(rs.getBoolean("active"));

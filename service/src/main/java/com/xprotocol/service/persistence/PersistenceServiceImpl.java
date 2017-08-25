@@ -29,8 +29,8 @@ public class PersistenceServiceImpl implements PersistenceService {
     }
 
     @Override
-    public void updateEntityByUUID(String tableName, String UUIDColName, String UUIDValue, Map<String, Object> valueMap) {
-        persistRepo.updateEntityById(tableName, UUIDColName, UUIDValue, valueMap);
+    public int updateEntityByUUID(String tableName, String UUIDColName, String UUIDValue, Map<String, Object> valueMap) {
+        return persistRepo.updateEntityByUUID(tableName, UUIDColName, UUIDValue, valueMap);
     }
 
     @Override

@@ -16,6 +16,7 @@ import com.xprotocol.service.persistence.PersistenceService;
 import com.xprotocol.utils.UtilsHelper;
 import com.xprotocol.utils.UtilsStringHelper;
 import com.xprotocol.utils.Validators;
+import com.xprotocol.web.exceptions.EntityUpdateException;
 import com.xprotocol.web.exceptions.IncompleteRegistrationInformationException;
 import java.io.IOException;
 import java.util.Base64;
@@ -104,61 +105,6 @@ public class UserController {
     }
     
     /**
-     *
-     * @param request : http request
-     * @param user : user information
-     * @param response : http response
-     * @return : logged in user
-     */
-    @RequestMapping(value="/api/user", method=RequestMethod.GET)
-    public User login(HttpServletRequest request, HttpServletResponse response) {
-        User user = null;
-        String authCredentials = request.getHeader("Authorization");
-        
-        try{
-            authCredentials = new String(Base64.getDecoder().decode(authCredentials.split(" ")[1]));
-            String[] authCredentialsArr = authCredentials.split(":");
-            String email = authCredentialsArr[0];
-            String password = authCredentialsArr[1];
-            if(Validators.isEmptyString(email)){            
-                throw new IncompleteRegistrationInformationException("The user email is empty!");
-            }
-            else if(Validators.isEmptyString(password)){
-                throw new IncompleteRegistrationInformationException("The user password is empty!");
-            }
-            else if(!Validators.emailValidator(email)){
-                throw new IncompleteRegistrationInformationException("The user email is NOT valid!");
-            }
-            try{
-                List<Map<String,Object>> userInfo = userSrv.userLogin(email, password);
-                user.setPassword("");
-                Cookie loggedIn = new Cookie("loggedIn", "true");
-                loggedIn.setMaxAge(60*60);
-                loggedIn.setPath("/");
-                response.addCookie(loggedIn);
-            }
-            catch(Exception ex){
-                throw new UserDoesNotExistException("Cannot find the user with email: "+email+".\nException message: "+ex.getMessage());
-            }
-        }
-        catch(IncompleteRegistrationInformationException ex){
-            try {
-                response.sendError(400, ex.getMessage());
-            } catch (IOException ex1) {
-                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
-            }
-        }
-        catch(UserDoesNotExistException ex){
-            try {
-                response.sendError(400, ex.getMessage());
-            } catch (IOException ex1) {
-                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
-            }
-        }
-        return user;
-    }
-    
-    /**
      * 
      * @param session : HttpSession
      * @param response : HttpServletResponse
@@ -176,14 +122,13 @@ public class UserController {
     public Map<String, Object> getUserProfile(HttpServletResponse response, @PathVariable("userUUIDStr") String userUUIDStr) {
         
         try{            
+            Map<String, Object> userProfileMap = new HashMap<>();
             if(!Validators.isValidUUID(userUUIDStr)){
                 throw new InvalidUUIDException("Invalid user UUID: "+userUUIDStr);
             }
             User user = userSrv.findUserByUUID(userUUIDStr);
             if(null != user){
-                Map<String, Object> userProfileMap = new HashMap<>();
-                user.setPassword("");
-                userProfileMap.put("user", user);
+                Map<String, Object> userDetailsMap = new HashMap<>();
                 UserDetails details = userDetailsSrv.findUserDetailsByUserId(user.getUserId());
                 if(null != details){
                     userProfileMap.put("userDetails", details);
@@ -217,7 +162,7 @@ public class UserController {
                 throw new InvalidUUIDException("Invalid user UUID: "+userUUIDStr);
             }
             
-            User user = userSrv.findUserByUUID(userUUIDStr);
+            User user = userSrv.findUserByUUID(userUUIDStr);            
             Map<String, Object> userProfileMap = new HashMap<>();
    
             if(null != user){
@@ -228,25 +173,28 @@ public class UserController {
                 valueMap.put("firstName", (String)request.getParameter("firstName"));
                 valueMap.put("lastName", (String)request.getParameter("lastName"));
                 valueMap.put("alias", (String)request.getParameter("alias"));
-                valueMap.put("userUUID", UtilsHelper.getBytesFromUUID(userUUID));
-                valueMap.put("userId", user.getUserId());
-                valueMap.put("password", user.getPassword());
-                rowAffected = persistenceSrv.addOrUpdateEntityWithVlues("users", "userId", valueMap);
+                valueMap.put("userUUID", userUUIDStr);
+                rowAffected = persistenceSrv.updateEntityByUUID("users", "userUUID", userUUIDStr, valueMap);
                 
-                if(rowAffected != -1){
+                if(rowAffected > 0){
                     details.setUserId(user.getUserId());
                     rowAffected = userDetailsSrv.addOrUpdateUserDetailsWithUserId(details);
+                    if(rowAffected == -1){
+                        response.sendError(500, "Cannot update or add the user detail information for UUID: "+userUUIDStr+"! ");
+                    }
+                    else{                    
+                        valueMap.put("createdDate", user.getCreatedDate());
+                        valueMap.put("password", "");
+                        valueMap.put("roles", user.getRoles());
+                        valueMap.put("userUUID", userUUIDStr);
+                        userProfileMap.put("user", valueMap);                    
+                        userProfileMap.put("userDetails", details);
+                    }
+                }
+                else {
+                    throw new EntityUpdateException("Cannot update user information with UUID = "+userUUIDStr);
                 }
    
-                if(rowAffected == -1){
-                    response.sendError(500, "Cannot update or add the user detail information for UUID: "+userUUIDStr+"! ");
-                }
-                else{                    
-                    valueMap.put("createdDate", user.getCreatedDate());
-                    valueMap.put("password", "");
-                    userProfileMap.put("user", valueMap);                    
-                    userProfileMap.put("userDetails", details);
-                }
                 return userProfileMap;
             }
             else{
@@ -266,6 +214,8 @@ public class UserController {
                 Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
             }
             Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (EntityUpdateException ex) {
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
@@ -278,8 +228,8 @@ public class UserController {
      * @return : logged in user
      */
     @RequestMapping(value="/api/signIn", method=RequestMethod.POST)
-    public Map<String,Object> singIn(HttpServletRequest request, HttpServletResponse response) {
-        Map<String,Object> userInfoMap = new HashMap<>();
+    public User singIn(HttpServletRequest request, HttpServletResponse response) {
+        User user = new User();
         String authCredentials = request.getHeader("Authorization");
         
         try{
@@ -297,30 +247,9 @@ public class UserController {
                 throw new IncompleteRegistrationInformationException("The user email is NOT valid!");
             }
             try{
-                List<Map<String,Object>> userInfoList = userSrv.userLogin(email, password);
-                if(userInfoList.size() > 0){
-                    int size = userInfoList.size();                    
-                    String roles = "";
-                    for(int i = 0; i < size; i++){
-                        if(null == userInfoList.get(i)){
-                            continue;
-                        }
-                        if(i ==0){
-                            userInfoMap = userInfoList.get(i);
-                        }
-                        else{
-                            String roleName = (String)userInfoList.get(i).get("roleName");
-                            if(!UtilsStringHelper.isEmptyString(roleName)){
-                                roles += roleName + ",";
-                            }
-                        }                        
-                    }
-                    if(roles.length() > 0){
-                        roles = roles.substring(0, roles.length()-1);
-                    }
-                    String userRoles = (String)userInfoMap.get("roleName");
-                    userRoles += "," + roles;
-                    userInfoMap.put("roleName", userRoles);
+                user = userSrv.userLogin(email, password);
+                if(null != user){
+                    
                     Cookie loggedIn = new Cookie("loggedIn", "true");
                     loggedIn.setMaxAge(60*60);
                     loggedIn.setPath("/");
@@ -348,6 +277,6 @@ public class UserController {
                 Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
             }
         }
-        return userInfoMap;
+        return user;
     }
 }
