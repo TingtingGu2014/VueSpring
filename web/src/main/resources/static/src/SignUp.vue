@@ -68,9 +68,7 @@
         },
         computed: {
             ...mapGetters({
-                isUserInfoFetched: 'userModule/isUserInfoFetched',
                 isUserDetailsFetched: 'userModule/isUserDetailsFetched',
-                getUserInfo: 'userModule/getUserInfo',
                 getUserDetails: 'userModule/getUserDetails',
             })
         },
@@ -146,11 +144,7 @@
 
                     if(status == 200){
 //                        alert("200");
-                        localStorage.userEmail = data.email
-                        localStorage.userName = data.alias
-                        localStorage.userUUID = data.userUUID
-                        this.setUserInfo(data)
-                        this.setUserInfoFetched(true)
+                        localStorage.userInfo = JSON.stringify(data)
                         this.setDetailsFetched(false)
                         document.location.href = '/home';
                     }
@@ -167,10 +161,8 @@
                 alert('new user!');
             },
             ...mapMutations({                
-                setUserInfo: 'userModule/setUserInfo',
                 setUserDetails: 'userModule/setUserDetails',
                 setDetailsFetched: 'userModule/setDetailsFetched',
-                setUserInfoFetched: 'userModule/setUserInfoFetched',
             }),
         }
     }

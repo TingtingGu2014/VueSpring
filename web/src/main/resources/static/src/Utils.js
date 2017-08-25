@@ -123,3 +123,30 @@ export function signUp(data, url) {
         console.log(error);
       });     
 }
+
+export function signIn(email, password) {
+    axios({
+        method: 'post',
+        url: '/api/signIn',
+        dataType: 'json',
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
+        auth: {
+            username: email,
+            password: password,
+        },
+    })
+    .then( (response) => {
+        var status = response.status;
+        if(status == 200 || status == "200"){
+            localStorage.userInfo = JSON.stringify(response.data)      
+            document.location.href = '/home'
+        }
+        else{
+            alert("not 200");
+            return;
+        }                                   
+    })
+    .catch( (error) => {
+        console.log(error);
+    });      
+}

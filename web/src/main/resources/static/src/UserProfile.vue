@@ -106,10 +106,8 @@
             }
         },
         computed: {
-            ...mapGetters({
-                isUserInfoFetched: 'userModule/isUserInfoFetched',
-                isUserDetailsFetched: 'userModule/isUserDetailsFetched',
-                getUserInfo: 'userModule/getUserInfo',
+            ...mapGetters({                
+                isUserDetailsFetched: 'userModule/isUserDetailsFetched',                
                 getUserDetails: 'userModule/getUserDetails',
             })
         },
@@ -120,12 +118,20 @@
                 document.location.href = '/login';
             }
             else{
+                var userUUID = ''
+                try {
+                    var userInfo = JSON.parse(localStorage.userInfo)
+                    userUUID = userInfo.userUUID
+                }
+                catch(err) {
+                    console.log(err.message)
+                }
                 var detailsFetched = this.isUserDetailsFetched
                 if(!detailsFetched == true){
                     axios({
                         method: 'get',
                         dataType: 'json',
-                        url: '/api/userProfile/'+localStorage.userUUID,
+                        url: '/api/userProfile/'+userUUID,
                     }).then( (response) => {
                         if(response.status === 200){
                             var data = response.data
@@ -142,7 +148,12 @@
                 }
                 else{                    
                     if(detailsFetched == true){
-                        var user = this.getUserInfo
+                        try{
+                            var user = JSON.parse(localStorage.userInfo)
+                        }
+                        catch(err) {
+                            console.log(err.message)
+                        }
                         this.email = user.email
                         this.alias = user.alias
                         this.userUUID = user.userUUID
@@ -178,7 +189,14 @@
             onSubmit: function (message, event) {
                 
                 var qs = require('qs');
-                axios.post('/api/userProfile/'+localStorage.userUUID, qs.stringify(this.$data))
+                var userInfo = null
+                try{
+                    userInfo = JSON.parse(localStorage.userInfo)
+                }
+                catch(err) {
+                    console.log(err.message)
+                }
+                axios.post('/api/userProfile/'+userInfo.userUUID, qs.stringify(this.$data))
                 .then( (response) => {
                     if(response.status === 200){
                         alert('Your profile information has been updated!')
@@ -203,22 +221,29 @@
                     this.city = details.city
                     this.state = details.state
                     this.zipcode = details.zipcode
-                }                         
-                this.setUserInfo(user)
-                this.email = user.email
-                this.alias = user.alias
-                this.userUUID = user.userUUID
-                this.createdDate = user.createdDate
-                this.firstName = user.firstName
-                this.lastName = user.lastName                            
-                this.setDetailsFetched(true)
-                this.setUserInfoFetched(true)
+                    this.setDetailsFetched(true)
+                }  
+                if(Utils.isEmpty(user)) {
+                    try{
+                        user = JSON.parse(localStorage.userInfo)
+                    }
+                    catch(err) {
+                        console.log(err.message)
+                    }
+                }
+                if(!Utils.isEmpty(user)){
+                    this.email = user.email
+                    this.alias = user.alias
+                    this.userUUID = user.userUUID
+                    this.createdDate = user.createdDate
+                    this.firstName = user.firstName
+                    this.lastName = user.lastName  
+                    localStorage.userInfo = JSON.stringify(user)
+                }
             },
-            ...mapMutations({                
-                setUserInfo: 'userModule/setUserInfo',
+            ...mapMutations({                                
                 setUserDetails: 'userModule/setUserDetails',
-                setDetailsFetched: 'userModule/setDetailsFetched',
-                setUserInfoFetched: 'userModule/setUserInfoFetched',
+                setDetailsFetched: 'userModule/setDetailsFetched',                
             }),
         }
     }
