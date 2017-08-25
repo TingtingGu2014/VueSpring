@@ -72,9 +72,11 @@ public class PersistenceRepository {
     }
     
     @Transactional
-    public void updateEntityByUUID(String tableName, String UUIDColName, String UUIDValue, Map<String, Object> valueMap){
+    public int updateEntityByUUID(String tableName, String UUIDColName, String UUIDValue, Map<String, Object> valueMap){
         
         UUID uuid = UUID.fromString(UUIDValue);
+        byte[] uuidArr = UtilsHelper.getBytesFromUUID(uuid);
+        valueMap.put(UUIDColName, uuidArr);
         
         List<Object> paramList = new ArrayList<>();
         String sql = "UPDATE " + tableName + " SET ";
@@ -86,9 +88,9 @@ public class PersistenceRepository {
         sql = sql.substring(0, sql.length()-1);
         sql += " WHERE " + UUIDColName + "=?";
         
-        paramList.add(UtilsHelper.getBytesFromUUID(uuid));
+        paramList.add(uuidArr);
         Object[] params = paramList.toArray(new Object[paramList.size()]);
-        jdbcTemplate.update(sql, params);
+        return jdbcTemplate.update(sql, params);
     }
     
     @Transactional
