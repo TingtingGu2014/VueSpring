@@ -150,3 +150,29 @@ export function signIn(email, password) {
         console.log(error);
     });      
 }
+
+export function isAdminUser () {
+    var user = null
+    try{
+        user = JSON.parse(localStorage.userInfo)
+    }
+    catch(err) {
+        console.log(err.message)
+    }
+    if(!isEmpty(user)){
+        var userRoles = user.roles
+        if(!isEmpty(userRoles)) {
+            var userRolesArr = userRoles.split(",");
+            if(null != userRolesArr && userRolesArr.indexOf("admin") >= 0){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+export function getErrorPage(code) {
+    var errors = require('./ErrorInfo')
+    var errorsObj = errors['default']
+    return errorsObj[code]
+}

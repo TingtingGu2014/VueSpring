@@ -8,14 +8,20 @@
     <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
       <ul class="navbar-nav mr-auto mt-2 mt-md-0">
         <li class="nav-item active my-auto">          
-            <router-link :to="{ name: 'home'}"><span class="fa fa-home"></span> Home</router-link>
+            <router-link :to="{ name: 'home'}"><span class="fa fa-home"></span> &nbsp;Home</router-link>
         </li>
         <li class="nav-item">
-          <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="text" placeholder="Search Protocols">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><i class="fa fa-search"></i></button>
-            <!--<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
-          </form>
+            <form class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="text" placeholder="Search Protocols">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><i class="fa fa-search"></i></button>
+                <!--<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
+            </form>
+        </li>
+        <li class="nav-item" v-if="isAdminUser">
+            <i class="fa fa-sun-o"></i>
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+                <router-link :to="{ name: 'home'}">Administration</router-link>
+            </button>            
         </li>
       </ul>
         
@@ -27,9 +33,18 @@
 <script>
     
     import LoginView from './LoginView.vue';
+    
+    var Utils = require('./Utils')
+    
+    Utils.getErrorPage('403')
                 
     export default {
-        components: {LoginView},        
+        components: {LoginView},    
+        computed: {
+            isAdminUser: function () {
+                return Utils.isAdminUser();
+            },
+        },
     }
 </script>
 
