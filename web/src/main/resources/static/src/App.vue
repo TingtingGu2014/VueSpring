@@ -16,16 +16,13 @@
 </template>
 
 <script>
-    import User from './User.vue';
     import Navbar from './Navbar.vue';
-    import Profile from './UserProfile.vue';
-//    import Datatable from './Datatable.vue';
     import MyVuetable from './Vuetable.vue'
     
     export default {
 	name: 'app',
 //        router,
-        components: {User,Navbar,MyVuetable},
+        components: {Navbar,MyVuetable},
         data() {
             return {
                 

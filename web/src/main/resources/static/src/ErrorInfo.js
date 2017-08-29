@@ -9,7 +9,7 @@ const errors =
             "message": "Sorry! You do not have permission to assess this page!",
         },
         "404": {
-            "title": "<i class='fa fa-frown-o red'></i> Page Not Found!",
+            "title": "Page Not Found!",
             "message": "Sorry! The page you requested does NOT exist!",
         },
     }

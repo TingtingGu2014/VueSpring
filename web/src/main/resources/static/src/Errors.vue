@@ -3,9 +3,11 @@
         <div class="container">
             <!-- Jumbotron -->
             <div class="jumbotron">
-              <h1 id="hh1"><i class="fa fa-frown-o red"></i> </h1>
+            <h1><div ref="errorDiv"><span class='fa fa-frown-o red'></span></div></h1>
               <p class="lead">{{errorMessage}}<em><span id="display-domain"></span></em>.</p>
-              <p><a class="btn btn-default btn-lg"><span class="green">Take Me To The Homepage</span></a>
+                <div>                    
+                    <router-link :to="{ name: 'home'}" class="btn btn-primary">Take Me To The Homepage</router-link>
+                </div>
               </p>
             </div>
           </div>          
@@ -23,11 +25,11 @@
                 errorMessage: error.message,
             }
         },
-        created: function() {
-            alert('ok');
-            var i = document.createElement("p");
-            i.innerHTML = "okok";
-            document.getElementById("hh1").appendChild(i);
+        mounted: function() {
+            var errorDiv = this.$refs.errorDiv
+            var i = document.createElement("span")
+            i.innerHTML = this.errorTitle
+            errorDiv.appendChild(i)
         }
     }
 </script>
@@ -36,4 +38,19 @@
   p{
     color: #69C;
   }
+  
+  h1, h2 {
+  font-weight: normal;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  display: inline-block;
+  margin: 0 10px;
+}
+
 </style>
