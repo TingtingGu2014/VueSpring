@@ -56,9 +56,9 @@
         data: function () {
             return {
                 loggedIn: loggedIn,
-                userEmail: userInfo.email,
-                userAlias: userInfo.alias,
-                userUUID: userInfo.userUUID,
+                userEmail: (Utils.isEmpty(userInfo) || Utils.isEmpty(userInfo.email)) ? '' : userInfo.email,
+                userAlias: (Utils.isEmpty(userInfo) || Utils.isEmpty(userInfo.alias)) ? '' : userInfo.alias,
+                userUUID: (Utils.isEmpty(userInfo) || Utils.isEmpty(userInfo.userUUID)) ? '' : userInfo.userUUID,
                 emaillogin: '',
                 passwordlogin: '',
             }
@@ -67,9 +67,11 @@
             reloadUserInfo: function() {
                 try{
                     userInfo = JSON.parse(localStorage.userInfo)
-                    this.userEmail = userInfo.email
-                    this.userAlias = userInfo.alias
-                    this.userUUID = userInfo.userUUID 
+                    if(!Utils.isEmpty(userInfo)){
+                        this.userEmail = Utils.isEmpty(userInfo.email) ? '' : userInfo.email
+                        this.userAlias = Utils.isEmpty(userInfo.alias) ? '' : userInfo.alias
+                        this.userUUID = Utils.isEmpty(userInfo.userUUID) ? '' : userInfo.userUUID
+                    }
                 }
                 catch(err) {
                     console.log(err.message)
