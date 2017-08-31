@@ -14,6 +14,7 @@ public class User {
     private String password;
     private String alias;
     private String userUUID;
+    private String roles;
     private Date createdDate;
     private boolean active;
 
@@ -29,6 +30,10 @@ public class User {
         this.userUUID = userUUID;
         this.active = active;
         this.password = password;
+    }
+    
+    public void setRoles(String roles) {
+        this.roles = roles;
     }
     
     public void setPassword(String password) {
@@ -62,6 +67,10 @@ public class User {
     public String getUserUUID() {
         return userUUID;
     }
+    
+    public String getRoles() {
+        return roles;
+    }
 
     public boolean isActive() {
         return active;
@@ -75,6 +84,7 @@ public class User {
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 ", UUID='" + userUUID + '\'' +
+                ", roles='" + roles + '\'' +
                 ", date=" + createdDate.toString() +
                 '}';
     }

@@ -123,3 +123,56 @@ export function signUp(data, url) {
         console.log(error);
       });     
 }
+
+export function signIn(email, password) {
+    axios({
+        method: 'post',
+        url: '/api/signIn',
+        dataType: 'json',
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
+        auth: {
+            username: email,
+            password: password,
+        },
+    })
+    .then( (response) => {
+        var status = response.status;
+        if(status == 200 || status == "200"){
+            localStorage.userInfo = JSON.stringify(response.data)      
+            document.location.href = '/home'
+        }
+        else{
+            alert("not 200");
+            return;
+        }                                   
+    })
+    .catch( (error) => {
+        console.log(error);
+    });      
+}
+
+export function isAdminUser () {
+    var user = null
+    try{
+        user = JSON.parse(localStorage.userInfo)
+    }
+    catch(err) {
+        console.log(err.message)
+    }
+    if(!isEmpty(user)){
+        var userRoles = user.roles
+        if(!isEmpty(userRoles)) {
+            var userRolesArr = userRoles.split(",");
+            if(null != userRolesArr && userRolesArr.indexOf("admin") >= 0){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+export function getErrorPage(code) {
+    var errors = require('./ErrorInfo')
+    var errorsObj = errors['default']
+    return errorsObj[code]
+}

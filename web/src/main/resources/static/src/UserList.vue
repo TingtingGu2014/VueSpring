@@ -1,61 +1,24 @@
 <template id="sign-up-template">
     
     <div class="container"><br><br>
-        <span>Please sign in or register as a user to use XProtocol services.</span>
-        <form>
-            <div class="form-group row justify-content-md-center">
-              <label for="inputEmail3" class="col-sm-2 col-form-label">Email:</label>
-              <div class="col-sm-10">                
-                <input type="email" class="form-control" v-model='email' placeholder="Email">
-              </div>
-              <span v-if="email.length > 1">{{ email_message }}</span>
-            </div>
-            <br>
-            <div class="form-group row" v-if="path.includes('signup')">
-                <label for="alias" class="col-sm-2 col-form-label">Name:</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" v-model="alias">
-                </div>
-            </div>
-            <br>
-            <div class="form-group row">
-                <label for="password" class="col-sm-2 col-form-label">Password:</label>
-                <div class="col-sm-10" v-if="path.includes('signup')">                
-                    <vue-password v-model="password" class="form-control" :user-inputs="[email]" placeholder="Password"></vue-password>
-                </div>
-                <div class="col-sm-10" v-else>                
-                    <input type="password" class="form-control" v-model="password">
-                </div>
-            </div>
-            <br>
-            <div v-if="path.includes('signup')" class="form-group row">
-                <label for="password2" class="col-sm-2 col-form-label">Confirm Password:</label>
-                <div class="col-sm-10">                
-                    <input type="password" class="form-control" v-model="password2" placeholder="Confirm Password">
-                </div>
-                <br>
-            </div>
-            <div class="form-group form-inline justify-content-md-center">
-            <button type="button" class="btn btn-primary " v-on:click="signupsubmit" >
-                <span v-if="path.includes('signup')" class="text-center">Sign Up</span>
-                <span v-else>Sign In</span>
-            </button>
-            </div>
-        </form>
+        <my-vuetable></my-vuetable>
     </div>
 </template>
 
 <script>
-    import { mapGetters, mapMutations } from 'vuex'
     
     var Utils = require('./Utils')
     
     var loggedIn = !Utils.isEmpty(Utils.readCookie('loggedIn'))
-    if(loggedIn == true){
-        document.location.href = '/home'
+    if(loggedIn != true){
+        document.location.href = '/login'
     }
     
-    import VuePassword from 'vue-password'
+    var isAdminUser = Utils.isAdminUser();
+    if(!isAdminUser){
+        document.location.href = '/errors/403'
+    }
+
     export default {
         data: function() {
             return {

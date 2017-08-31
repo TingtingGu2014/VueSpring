@@ -33,11 +33,19 @@
     import { mapGetters, mapMutations } from 'vuex'
     
     var Utils = require('./Utils')
-    var loggedIn = !Utils.isEmpty(Utils.readCookie('loggedIn'));
+    var loggedIn = !Utils.isEmpty(Utils.readCookie('loggedIn'))
+    var userInfo = null
     if(loggedIn === false){
-        localStorage.userEmail = '';
-        localStorage.userName = '';
-        localStorage.userUUID = '';
+        localStorage.userInfo = null
+    }
+    else {
+        try{
+            userInfo = JSON.parse(localStorage.userInfo)
+        }
+        catch(err) {
+            console.log(err.message)
+            localStorage.userInfo = ''
+        }
     }
                 
     export default {
@@ -48,18 +56,30 @@
         data: function () {
             return {
                 loggedIn: loggedIn,
-                userEmail: localStorage.userEmail,
-                userAlias: localStorage.userName,
-                userUUID: localStorage.userUUID,
+                userEmail: (Utils.isEmpty(userInfo) || Utils.isEmpty(userInfo.email)) ? '' : userInfo.email,
+                userAlias: (Utils.isEmpty(userInfo) || Utils.isEmpty(userInfo.alias)) ? '' : userInfo.alias,
+                userUUID: (Utils.isEmpty(userInfo) || Utils.isEmpty(userInfo.userUUID)) ? '' : userInfo.userUUID,
                 emaillogin: '',
                 passwordlogin: '',
             }
         },     
         computed: {
+            reloadUserInfo: function() {
+                try{
+                    userInfo = JSON.parse(localStorage.userInfo)
+                    if(!Utils.isEmpty(userInfo)){
+                        this.userEmail = Utils.isEmpty(userInfo.email) ? '' : userInfo.email
+                        this.userAlias = Utils.isEmpty(userInfo.alias) ? '' : userInfo.alias
+                        this.userUUID = Utils.isEmpty(userInfo.userUUID) ? '' : userInfo.userUUID
+                    }
+                }
+                catch(err) {
+                    console.log(err.message)
+                    localStorage.userInfo = ''
+                }
+            },
             ...mapGetters({
-                isUserInfoFetched: 'userModule/isUserInfoFetched',
                 isUserDetailsFetched: 'userModule/isUserDetailsFetched',
-                getUserInfo: 'userModule/getUserInfo',
                 getUserDetails: 'userModule/getUserDetails',
             })
         },
@@ -74,43 +94,9 @@
                 if (event){
                     event.preventDefault()
                 }
-
-                axios({
-                    method: 'post',
-                    url: '/api/signIn',
-                    dataType: 'json',
-                    headers: {'X-Requested-With': 'XMLHttpRequest'},
-                    auth: {
-                        username: this.emaillogin,
-                        password: this.passwordlogin
-                    },
-                })
-                .then( (response) => {
-                    var status = response.status;
-                    var data = response.data;
-
-                    if(status == 200){
-//                        alert("200");
-                        localStorage.userEmail = data.email
-                        localStorage.userName = data.alias
-                        localStorage.userUUID = data.userUUID
-                        this.loggedIn = true
-                        this.userEmail = data.email
-                        this.userAlias = data.alias
-                        this.userUUID = data.userUUID 
-                        this.setDetailsFetched(false)
-                        this.setUserInfoFetched(true)
-                        this.setUserInfo(data)
-                        document.location.href = '/home'
-                    }
-                    else{
-                        alert("not 200");
-                        return;
-                    }                                   
-                })
-                .catch( (error) => {
-                    console.log(error);
-                });                                    
+                
+                Utils.signIn(this.emaillogin, this.passwordlogin)
+                
             },
             logoutsubmit: function (message, event) {
                 if (event){
@@ -127,27 +113,25 @@
                     var data = response.data;
 
                     if(status == 200 || status == 204){
-                        localStorage.userEmail = '';
-                        localStorage.userName = '';
-                        localStorage.userUUID = '';
-                        var loggedIn = Utils.readCookie('loggedIn');
+                        localStorage.userEmail = ''
+                        localStorage.userName = ''
+                        localStorage.userUUID = ''
+                        localStorage.userInfo = ''
+                        var loggedIn = Utils.readCookie('loggedIn')
                         if(loggedIn == 'true'){
-                            Utils.eraseCookie('loggedIn');
+                            Utils.eraseCookie('loggedIn')
                         }
-                        this.loggedIn = false;
-                        this.userEmail = '';
-                        this.userAlias = '';
-                        this.userUUID = '';
-                        this.setUserDetails(null);
+                        this.loggedIn = false
+                        this.userEmail = ''
+                        this.userAlias = ''
+                        this.userUUID = ''
+                        this.setUserDetails(null)
                         this.setDetailsFetched(false)
-                        this.setUserInfoFetched(false)
-                        this.setUserInfo(null)
-                        document.location.href = '/home';
+                        document.location.href = '/home'
                     }
                     else{
                         alert("not 200 "+status);
                     }                                   
-                    console.log(this.userEmail);
                   })
                   .catch( (error) => {
                     console.log(error);
@@ -155,10 +139,8 @@
             
             },
             ...mapMutations({                
-                setUserInfo: 'userModule/setUserInfo',
                 setUserDetails: 'userModule/setUserDetails',
                 setDetailsFetched: 'userModule/setDetailsFetched',
-                setUserInfoFetched: 'userModule/setUserInfoFetched',
             }),
         }
     }

@@ -2,6 +2,7 @@ package com.xprotocol.persistence.dao;
 
 import com.xprotocol.persistence.model.User;
 import com.xprotocol.utils.UtilsHelper;
+import com.xprotocol.utils.UtilsStringHelper;
 import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -65,27 +67,49 @@ public class UserRepository {
         UUID userUUID = UUID.fromString(userUUIDStr);
         try{
             return jdbcTemplate.queryForObject(
-                "select * from users where userUUID=? AND active=? ",
-                new Object[]{UtilsHelper.getBytesFromUUID(userUUID), true}, new UserRowMapper());
-            
+                    "SELECT users.*, GROUP_CONCAT(roleName SEPARATOR ',') AS roles FROM users " +
+                    "LEFT JOIN userRoles ON users.userId = userRoles.userId " +
+                    "INNER JOIN roles ON userRoles.roleId = roles.roleId " +
+                    "WHERE userUUID=? AND active=? " +
+                    "GROUP BY userId;", 
+                    new Object[]{UtilsHelper.getBytesFromUUID(userUUID), true}, new UserRowMapper());
         }
-        catch(EmptyResultDataAccessException ex){
+        catch(EmptyResultDataAccessException ex) {
             return null;
         }
     }
     
     @Transactional(readOnly=true)
     public User userLogin(String email, String password) {
-        return jdbcTemplate.queryForObject(
-                "select * from users where email=? AND password=? AND active=? ",
-                new Object[]{email, password, true}, new UserRowMapper());
+        
+        try{
+            return jdbcTemplate.queryForObject(
+                    "SELECT users.*, GROUP_CONCAT(roleName SEPARATOR ',') AS roles FROM users " +
+                    "LEFT JOIN userRoles ON users.userId = userRoles.userId " +
+                    "INNER JOIN roles ON userRoles.roleId = roles.roleId " +
+                    "WHERE email=? AND password=? AND active=? " +
+                    "GROUP BY userId;", 
+                    new Object[]{email, password, true}, new UserRowMapper());
+        }
+        catch(EmptyResultDataAccessException ex) {
+            return null;
+        }
     }
 
     @Transactional(readOnly=true)
     public User findUserByEmail(String email) {
-        return jdbcTemplate.queryForObject(
-                "select * from users where email=? AND active=? ",
-                new Object[]{email, true}, new UserRowMapper());
+        try{
+            return jdbcTemplate.queryForObject(
+                    "SELECT users.*, GROUP_CONCAT(roleName SEPARATOR ',') AS roles FROM users " +
+                    "LEFT JOIN userRoles ON users.userId = userRoles.userId " +
+                    "INNER JOIN roles ON userRoles.roleId = roles.roleId " +
+                    "WHERE email=? AND active=? " +
+                    "GROUP BY userId;", 
+                    new Object[]{email, true}, new UserRowMapper());
+        }
+        catch(EmptyResultDataAccessException ex) {
+            return null;
+        }
     }
 
     @Transactional
