@@ -58,9 +58,8 @@ public class UserController {
     @Autowired
     PersistenceService persistenceSrv;
     
-    @RequestMapping(value="/rest/users")
+    @RequestMapping(value="/api/admin/users")
     public List<User> findAll(HttpServletRequest request){
-        HttpSession session = request.getSession();
         return userSrv.findAll();
     }
     

@@ -53,7 +53,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .withUser("sedooe").password("password").roles("USER");
                     .jdbcAuthentication().dataSource(dataSource)
                     .usersByUsernameQuery(" SELECT email AS username, password, userId FROM USERS WHERE email=? ")
-                    .authoritiesByUsernameQuery(" SELECT USERS.email AS username, ROLES.roleName AS role FROM USERS INNER JOIN USERROLES ON (USERS.userId=USERROLES.userId)"
+                    .authoritiesByUsernameQuery(" SELECT USERS.email AS username, ROLES.roleName AS role FROM USERS " 
+                            + "                                                                 LEFT JOIN USERROLES ON (USERS.userId=USERROLES.userId) "
                             + "                                                                 INNER JOIN ROLES ON (USERROLES.roleId=ROLES.roleId) "
                             + "                                                                 WHERE USERS.email=? ");
     }
