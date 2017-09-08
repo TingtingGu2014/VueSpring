@@ -17,12 +17,10 @@
 
 <script>
     import Navbar from './Navbar.vue';
-    import MyVuetable from './Vuetable.vue'
     
     export default {
 	name: 'app',
-//        router,
-        components: {Navbar,MyVuetable},
+        components: {Navbar},
         data() {
             return {
                 
@@ -67,4 +65,27 @@ a {
   color: #42b983;
 }
 
+table.table-component__table {
+    position: relative;
+    //display: block;
+    margin: 10px auto;
+    padding: 0;
+    width: 100%;
+    height: auto;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+th.table-component__th {
+    text-align: center;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #E0FFFF;
+}
+
+input.table-component__filter__field {
+    width: 30%;
+    margin-bottom: 5px;
+}
 </style>

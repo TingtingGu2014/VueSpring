@@ -24,7 +24,7 @@ public class UserRepository {
 
     @Transactional(readOnly=true)
     public List<User> findAll() {
-        return jdbcTemplate.query("select * from users",
+        return jdbcTemplate.query("select userUUID, firstName, lastName, email, alias, createdDate, active from users",
                 new UserRowMapper());
     }
 

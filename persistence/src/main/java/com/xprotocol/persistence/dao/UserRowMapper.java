@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Created by zhao0677 on 4/26/17.
@@ -15,18 +16,22 @@ class UserRowMapper implements RowMapper<User>
 {
     @Override
     public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+        
+        List<String> columnList = PersistenceUtil.getColumnListFromResultSet(rs);
+        
         User user = new User();
-        user.setUserId(rs.getInt("userId"));
-        user.setPassword(rs.getString("password"));
+        if(columnList.contains("userId")){
+            user.setUserId(rs.getInt("userId"));
+        }
+        if(columnList.contains("password")){
+            user.setPassword(rs.getString("password"));
+        }
         user.setFirstName(rs.getString("firstName"));
         user.setLastName(rs.getString("lastName"));
         user.setEmail(rs.getString("email"));
         user.setAlias(rs.getString("alias"));
-        try{
+        if(columnList.contains("roles")){
             user.setRoles(rs.getString("roles"));
-        }
-        catch(SQLException ex){
-            ex.printStackTrace();
         }
         user.setUserUUID(UtilsHelper.getUUIDFromBytes(rs.getBytes("userUUID")).toString());
         user.setCreatedDate(rs.getDate("createdDate"));
