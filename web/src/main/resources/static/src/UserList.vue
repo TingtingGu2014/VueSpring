@@ -25,38 +25,47 @@
     if(!isAdminUser){
         document.location.href = '/errors/403'
     }
-
+    
     export default {
         data: function() {
             return {
-                tableData: [
-                    { firstName: 'John', birthday: '04/10/1940', songs: 72, lastName: 'White', address: '234 North Blue task AVE' },
-                    { firstName: 'Paul', birthday: '18/06/1942', songs: 70, lastName: 'White', address: '234 North Blue task AVE' },
-                    { firstName: 'George', birthday: '25/02/1943', songs: 22, lastName: 'White', address: '234 North Blue task AVE' },
-                    { firstName: 'Ringo', birthday: '07/07/1940', songs: 2, lastName: 'White', address: '234 North Blue task AVE' },
-                ],
+                tableData: [],
                 tableColumns: [
                     {show: 'firstName', label: 'First Name', dataType: ''},
                     {show: 'lastName', label: 'Last Name', dataType: ''},
-                    {show: 'songs', label: 'Songs', dataType: 'numeric'},
-                    {show: 'birthday', label: 'Birthday', dataType: ''},
-                    {show: 'address', label: 'Address', },
+                    {show: 'email', label: 'Email', dataType: ''},
+                    {show: 'userUUID', label: 'UUID', dataType: ''},
+                    {show: 'createdDate', label: 'Registeration Date', dataType: 'date:DD/MM/YYYY'},
+                    {show: 'active', label: 'Active', dataType: 'boolean'},
                 ],
                 showFilter: true,
             }
         },
-        computed: {
-            
+        beforeMount: function(){
+            axios({
+                method: 'get',
+                url: '/api/admin/users',
+                dataType: 'json',
+                headers: {'X-Requested-With': 'XMLHttpRequest'},
+            })
+            .then( (response) => {
+                var status = response.status;
+                if(status == 200 || status == "200"){
+                    console.log(response.data)
+                    this.tableData = response.data
+                }
+                else{
+                    alert("not 200");
+                    this.tableData = response.data;
+                }                                   
+            })
+            .catch( (error) => {
+                console.log(error);
+            });  
         },
         components: {
             VueDataTable,
         },
-        watch: {
-
-        },
-        methods: {
-         
-        }
     }
 </script>
 
