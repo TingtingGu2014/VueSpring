@@ -17,11 +17,8 @@
                 <!--<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
             </form>
         </li>
-        <li class="nav-item" v-if="isAdminUser">
-            <i class="fa fa-sun-o"></i>
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
-                <router-link :to="{ name: 'home'}">Administration</router-link>
-            </button>            
+        <li class="nav-item form-inline" v-if="isAdminUser">                       
+            <button class="btn btn-outline-success my-2 my-sm-0" type="button" onclick="location.href = '/admin';"><i class="fa fa-sun-o"></i>&nbsp;Admin</button>
         </li>
       </ul>
         
