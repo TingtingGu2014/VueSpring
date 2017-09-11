@@ -87,6 +87,19 @@
     import { mapGetters, mapMutations } from 'vuex'
     
     var Utils = require('./Utils')
+    
+    var loggedIn = !Utils.isEmpty(Utils.readCookie('loggedIn'))
+    if(loggedIn != true){
+        document.location.href = '/login'
+    }
+    
+    var currentUrl = window.location.href
+    if(currentUrl.indexOf('admin/') >=0) {
+        var isAdminUser = Utils.isAdminUser();
+        if(!isAdminUser){
+            document.location.href = '/errors/403'
+        }
+    }
             
     export default {
         data: function() {
