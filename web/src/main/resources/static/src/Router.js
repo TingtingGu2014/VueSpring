@@ -12,6 +12,7 @@ const Errors = resolve => require(['./Errors.vue'], resolve);
 const routes = [
     { path: '/', name: 'home', component: Home },
     { path: '/userProfile/:userUUID' , name: 'userProfile', component: UserProfile },
+    { path: '/admin/userProfile/:userUUID' , name: 'userProfileEdit', component: UserProfile, meta:{userProfileEdit: 'true'}},
     { path: '/signup/' , name: 'signUp', component: SignUp,  meta:{signUpType: 'signup'}},
     { path: '/login' , name: 'login', component: SignUp, meta:{signUpType: 'login'}},
     { path: '/userList', name: 'userList', component: UserList },

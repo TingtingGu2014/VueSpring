@@ -37,6 +37,7 @@
                     {show: 'userUUID', label: 'UUID', dataType: ''},
                     {show: 'createdDate', label: 'Registeration Date', dataType: 'date:DD/MM/YYYY'},
                     {show: 'active', label: 'Active', dataType: 'boolean'},
+                    {show: 'edit', label: 'Edit', dataType: ''},
                 ],
                 showFilter: true,
             }
@@ -50,13 +51,18 @@
             })
             .then( (response) => {
                 var status = response.status;
+                var data = response.data
                 if(status == 200 || status == "200"){
-                    console.log(response.data)
-                    this.tableData = response.data
+                    console.log(data)
+                    for(var i in data) {
+                        var row = data[i];
+                        row["edit"] = "<a href=\"/admin/userProfile/" + row.userUUID + "\"><span class=\"fa fa-pencil\" aria-hidden=\"true\" ></span></a>";
+                    }
+                    this.tableData = data
                 }
                 else{
                     alert("not 200");
-                    this.tableData = response.data;
+//                    this.tableData = data;
                 }                                   
             })
             .catch( (error) => {
