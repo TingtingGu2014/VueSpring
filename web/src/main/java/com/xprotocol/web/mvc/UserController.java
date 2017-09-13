@@ -13,11 +13,11 @@ import com.xprotocol.service.user.UserDetailsService;
 import com.xprotocol.service.user.UserService;
 import com.xprotocol.service.exceptions.UserDoesNotExistException;
 import com.xprotocol.service.persistence.PersistenceService;
-import com.xprotocol.utils.UtilsHelper;
-import com.xprotocol.utils.UtilsStringHelper;
 import com.xprotocol.utils.Validators;
+import com.xprotocol.web.config.XprotocolWebUtils;
 import com.xprotocol.web.exceptions.EntityUpdateException;
 import com.xprotocol.web.exceptions.IncompleteRegistrationInformationException;
+import com.xprotocol.web.exceptions.UserAuthorizationException;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
@@ -29,7 +29,6 @@ import java.util.logging.Logger;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
@@ -49,8 +48,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @ComponentScan("com.xprotocol.service")
 public class UserController {
-    @Autowired
-    UserService userSrv;
     
     @Autowired
     UserDetailsService userDetailsSrv;
@@ -60,7 +57,7 @@ public class UserController {
     
     @RequestMapping(value="/api/admin/users")
     public List<User> findAll(HttpServletRequest request){
-        return userSrv.findAll();
+        return XprotocolWebUtils.userSrv.findAll();
     }
     
     /**
@@ -82,7 +79,7 @@ public class UserController {
             else if(!Validators.emailValidator(user.getEmail())){
                 throw new IncompleteRegistrationInformationException("The user email is NOT valid!");
             }
-            int id = userSrv.addUser(user.getEmail(), user.getAlias(), user.getPassword());
+            int id = XprotocolWebUtils.userSrv.addUser(user.getEmail(), user.getAlias(), user.getPassword());
             user.setUserId(id);
             user.setPassword("");
         }
@@ -120,12 +117,18 @@ public class UserController {
     @RequestMapping(value = "/api/userProfile/{userUUIDStr}", method = RequestMethod.GET)
     public Map<String, Object> getUserProfile(HttpServletResponse response, @PathVariable("userUUIDStr") String userUUIDStr) {
         
-        try{            
+        try{           
+            if(!XprotocolWebUtils.currentSessionUserHasAuthority("admin")){
+                User currentUser = XprotocolWebUtils.getCurrentSessionUser();
+                if(!currentUser.getUserUUID().equals(userUUIDStr)){
+                    throw new UserAuthorizationException("User "+currentUser.getEmail()+ " cannot check other user's profile!");
+                }
+            }
             Map<String, Object> userProfileMap = new HashMap<>();
             if(!Validators.isValidUUID(userUUIDStr)){
                 throw new InvalidUUIDException("Invalid user UUID: "+userUUIDStr);
             }
-            User user = userSrv.findUserByUUID(userUUIDStr);
+            User user = XprotocolWebUtils.userSrv.findUserByUUID(userUUIDStr);
             if(null != user){
                 Map<String, Object> userDetailsMap = new HashMap<>();
                 UserDetails details = userDetailsSrv.findUserDetailsByUserId(user.getUserId());
@@ -146,6 +149,13 @@ public class UserController {
             }
         } catch (InvalidUUIDException ex) {
             Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UserAuthorizationException ex) {
+            try {
+                response.sendError(403, ex.getMessage());
+            } catch (IOException ex1) {
+                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
@@ -161,7 +171,7 @@ public class UserController {
                 throw new InvalidUUIDException("Invalid user UUID: "+userUUIDStr);
             }
             
-            User user = userSrv.findUserByUUID(userUUIDStr);            
+            User user = XprotocolWebUtils.userSrv.findUserByUUID(userUUIDStr);            
             Map<String, Object> userProfileMap = new HashMap<>();
    
             if(null != user){
@@ -246,7 +256,7 @@ public class UserController {
                 throw new IncompleteRegistrationInformationException("The user email is NOT valid!");
             }
             try{
-                user = userSrv.userLogin(email, password);
+                user = XprotocolWebUtils.userSrv.userLogin(email, password);
                 if(null != user){
                     
                     Cookie loggedIn = new Cookie("loggedIn", "true");
