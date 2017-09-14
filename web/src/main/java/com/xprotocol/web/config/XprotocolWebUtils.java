@@ -5,23 +5,18 @@
  */
 package com.xprotocol.web.config;
 
-import com.xprotocol.persistence.model.User;
-import com.xprotocol.service.user.UserService;
 import java.util.Collection;
 import java.util.Iterator;
 import javax.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
 /**
  *
  * @author zhao0677
  */
 public class XprotocolWebUtils {
-    
-    @Autowired
-    public static UserService userSrv;
     
     public static String getContextUrlFromRequest(HttpServletRequest request){
         String contextUrl = request.getServletPath();
@@ -32,14 +27,12 @@ public class XprotocolWebUtils {
     }
     
     public static User getCurrentSessionUser (){
-        org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String email = user.getUsername();
-        return userSrv.findUserByEmail(email);
+        return (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
     
     public static Collection<GrantedAuthority> getCurrentSessionUserAuthorities(){
-        org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return user.getAuthorities();
+        User currentUser = getCurrentSessionUser();
+        return currentUser.getAuthorities();
     }
     
     public static boolean currentSessionUserHasAuthority(String role){
