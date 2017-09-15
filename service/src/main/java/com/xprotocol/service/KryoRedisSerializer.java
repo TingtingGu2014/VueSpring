@@ -9,6 +9,8 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import com.xprotocol.persistence.model.User;
+//import com.xprotocol.esotericsoftware.KryoPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.BeanClassLoaderAware;
@@ -36,11 +38,11 @@ public class KryoRedisSerializer<T> implements RedisSerializer<T>, BeanClassLoad
       
     @Override  
     public byte[] serialize(Object t) throws SerializationException {  
-        Kryo kryo = kryoPool.borrow();
         byte[] buffer = new byte[2048];  
+        Kryo kryo = kryoPool.borrow();
         Output output = new Output(buffer);  
         kryo.writeClassAndObject(output, t);  
-        return output.toBytes();  
+        return output.toBytes(); 
     }  
   
     @Override  
@@ -56,7 +58,9 @@ public class KryoRedisSerializer<T> implements RedisSerializer<T>, BeanClassLoad
         Input input = new Input(bytes);  
         @SuppressWarnings("unchecked")  
         T t = (T) kryo.readClassAndObject(input);  
-        return t;  
+        kryoPool.release(kryo);
+        input.close(); 
+        return t;
     }  
   
 }

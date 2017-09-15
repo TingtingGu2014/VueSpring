@@ -84,6 +84,7 @@ public class UserController {
             int id = userSrv.addUser(user.getEmail(), user.getAlias(), user.getPassword());
             user.setUserId(id);
             user.setPassword("");
+            userSrv.setCurrentLoggedinUser(user);
         }
         catch(IncompleteRegistrationInformationException ex){
             try {
@@ -110,6 +111,7 @@ public class UserController {
     @RequestMapping(value = "/api/signout", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void signOut(HttpServletRequest request, HttpServletResponse response) {
+        userSrv.removeCurrentLoggedinUser(userSrv.findUserByEmail(XprotocolWebUtils.getCurrentSessionUser().getUsername()));
         Cookie loggedIn = new Cookie("loggedIn", "");
         loggedIn.setMaxAge(0);
         loggedIn.setPath("/");
@@ -121,9 +123,9 @@ public class UserController {
         
         try{           
             if(!XprotocolWebUtils.currentSessionUserHasAuthority("admin")){
-                User currentUser = userSrv.findUserByEmail(XprotocolWebUtils.getCurrentSessionUser().getUsername());
+                User currentUser = userSrv.getCurrentLoggedinUser(userSrv, XprotocolWebUtils.getCurrentSessionUser().getUsername());
                 if(!currentUser.getUserUUID().equals(userUUIDStr)){
-                    throw new UserAuthorizationException("User "+currentUser.getEmail()+ " cannot check other user's profile!");
+                    throw new UserAuthorizationException("Non-admin user "+currentUser.getEmail()+ " cannot check other user's profile!");
                 }
             }
             Map<String, Object> userProfileMap = new HashMap<>();
@@ -177,17 +179,26 @@ public class UserController {
             Map<String, Object> userProfileMap = new HashMap<>();
    
             if(null != user){
+                
+                String email = (String)request.getParameter("email");
+                String firstName = (String)request.getParameter("firstName");
+                String lastName = (String)request.getParameter("lastName");
+                String alias = (String)request.getParameter("alias");
 
                 Map<String, Object> valueMap = new HashMap<>();
-                UUID userUUID = UUID.fromString(userUUIDStr);
-                valueMap.put("email", (String)request.getParameter("email"));
-                valueMap.put("firstName", (String)request.getParameter("firstName"));
-                valueMap.put("lastName", (String)request.getParameter("lastName"));
-                valueMap.put("alias", (String)request.getParameter("alias"));
+                valueMap.put("email", email);
+                valueMap.put("firstName", firstName);
+                valueMap.put("lastName", lastName);
+                valueMap.put("alias", alias);
                 valueMap.put("userUUID", userUUIDStr);
                 rowAffected = persistenceSrv.updateEntityByUUID("users", "userUUID", userUUIDStr, valueMap);
                 
                 if(rowAffected > 0){
+                    user.setFirstName(firstName);
+                    user.setLastName(lastName);
+                    user.setAlias(alias);
+                    userSrv.setCurrentLoggedinUser(user);
+                    
                     details.setUserId(user.getUserId());
                     rowAffected = userDetailsSrv.addOrUpdateUserDetailsWithUserId(details);
                     if(rowAffected == -1){
@@ -260,7 +271,7 @@ public class UserController {
             try{
                 user = userSrv.userLogin(email, password);
                 if(null != user){
-                    
+                    userSrv.setCurrentLoggedinUser(user);
                     Cookie loggedIn = new Cookie("loggedIn", "true");
                     loggedIn.setMaxAge(60*60);
                     loggedIn.setPath("/");

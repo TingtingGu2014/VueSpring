@@ -32,6 +32,12 @@ public interface UserService {
     User findUserById(int userId);
     
     User findUserByUUID(String userUUIDStr);
+    
+    User setCurrentLoggedinUser(User user);
+    
+    User removeCurrentLoggedinUser(User user);
+    
+    User getCurrentLoggedinUser(UserService userSrv, String email);
 
     int inactivateUserByUserEmail(String email);
 

@@ -12,6 +12,7 @@
         <module>web</module>
         <module>utils</module>
         <module>cassandra</module>
+        <module>kryo-xprotocol</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -38,10 +39,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
-<!--        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-        </dependency>-->
     </dependencies>
 
 </project>
