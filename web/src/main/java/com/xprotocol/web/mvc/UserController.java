@@ -21,6 +21,7 @@ import com.xprotocol.web.exceptions.UserAuthorizationException;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -73,7 +74,7 @@ public class UserController {
     public User signUp(HttpServletRequest request, @ModelAttribute("SpringWeb") User user, HttpServletResponse response){
         try{
             if(Validators.isEmptyString(user.getEmail())){            
-                throw new IncompleteRegistrationInformationException("The user email is empty!");
+                throw new IncompleteRegistrationInformationException("The user email cannot be empty!");
             }
             else if(Validators.isEmptyString(user.getPassword())){
                 throw new IncompleteRegistrationInformationException("The user password is empty!");
@@ -81,10 +82,17 @@ public class UserController {
             else if(!Validators.emailValidator(user.getEmail())){
                 throw new IncompleteRegistrationInformationException("The user email is NOT valid!");
             }
-            int id = userSrv.addUser(user.getEmail(), user.getAlias(), user.getPassword());
-            user.setUserId(id);
-            user.setPassword("");
-            userSrv.setCurrentLoggedinUser(user);
+            Map<Integer, String> idMap = userSrv.addUser(user.getEmail(), user.getAlias(), user.getPassword());
+            if(null != idMap && !idMap.isEmpty()){
+                Iterator it = idMap.keySet().iterator();
+                Map.Entry element = (Map.Entry)it.next();
+                Integer id = (Integer)element.getKey();
+                String userUUID = (String)element.getValue();
+                user.setUserId(id);
+                user.setUserUUID(userUUID);
+                user.setPassword("");
+                userSrv.setCurrentLoggedinUser(user);
+            }            
         }
         catch(IncompleteRegistrationInformationException ex){
             try {

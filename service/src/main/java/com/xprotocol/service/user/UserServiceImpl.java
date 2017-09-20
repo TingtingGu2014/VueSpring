@@ -30,22 +30,22 @@ public class UserServiceImpl implements UserService {
     UserRepository userRepo;
 
     @Override
-    public int addUser(String email, String password) {
+    public Map<Integer, String> addUser(String email, String password) {
         return userRepo.addUser(email, password);
     }
 
     @Override
-    public int addUser(String email, String alias, String password) {
+    public Map<Integer, String> addUser(String email, String alias, String password) {
         return userRepo.addUser(email, alias, password);
     }
 
     @Override
-    public int addUser(String firstName, String lastName, String email, String alias, String password) {
+    public Map<Integer, String> addUser(String firstName, String lastName, String email, String alias, String password) {
         return userRepo.addUser(firstName, lastName, email, alias, password);
     }
 
     @Override
-    public int addUser(String firstName, String lastName, String email, String alias, String password, boolean active) {
+    public Map<Integer, String> addUser(String firstName, String lastName, String email, String alias, String password, boolean active) {
         return userRepo.addUser(firstName, lastName, email, alias, password, active);
     }
 

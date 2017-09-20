@@ -15,13 +15,13 @@ import java.util.Map;
  */
 public interface UserService {
 
-    int addUser(String email, String password);
+    Map<Integer, String> addUser(String email, String password);
 
-    int addUser(String email, String alias, String password);
+    Map<Integer, String> addUser(String email, String alias, String password);
 
-    int addUser(String firstName, String lastName, String email, String alias, String password);
+    Map<Integer, String> addUser(String firstName, String lastName, String email, String alias, String password);
 
-    int addUser(String firstName, String lastName, String email, String alias, String password, boolean active);
+    Map<Integer, String> addUser(String firstName, String lastName, String email, String alias, String password, boolean active);
 
     List<User> findAll();
     

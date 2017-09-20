@@ -29,22 +29,22 @@ public class UserRepository {
     }
 
     @Transactional
-    public int  addUser(String email, String password) {
+    public Map<Integer, String>  addUser(String email, String password) {
         return addUser("", "", email, "", password, true);
     }
 
     @Transactional
-    public int addUser(String email, String alias, String password) {
+    public Map<Integer, String> addUser(String email, String alias, String password) {
         return addUser("", "", email, alias, password, true);
     }
 
     @Transactional
-    public int addUser(String firstName, String lastName, String email, String alias, String password) {
+    public Map<Integer, String> addUser(String firstName, String lastName, String email, String alias, String password) {
         return addUser(firstName, lastName, email, alias, password, true);
     }
 
     @Transactional
-    public int addUser(String firstName, String lastName, String email, String alias, String password, boolean active) {
+    public Map<Integer, String> addUser(String firstName, String lastName, String email, String alias, String password, boolean active) {
         
         UUID userUUID = UtilsHelper.getUUIDBasedOnTime();
         byte[] userUUIDArr = UtilsHelper.getBytesFromUUID(userUUID);
@@ -52,7 +52,17 @@ public class UserRepository {
         jdbcTemplate.update("INSERT INTO users(firstName, lastName, email, alias, password, userUUID, createdDate, active) VALUES (?,?,?,?,?,?,?,?)",
                 new Object[]{firstName, lastName, email, alias, password, userUUIDArr, new Date(), active});
         
-        return jdbcTemplate.queryForObject(" SELECT last_insert_id()", Integer.class);
+        int userId = jdbcTemplate.queryForObject(" SELECT last_insert_id()", Integer.class);
+        
+        if(userId > 0){
+            Map<Integer, String> idMap = new HashMap<>();
+            idMap.put(userId, userUUID.toString());
+            jdbcTemplate.update("INSERT INTO userRoles(userId, roleId) VALUES (?,?)",
+                    new Object[]{userId, 3});
+            return idMap;
+        }
+        
+        return null;
     }
 
     @Transactional(readOnly=true)
