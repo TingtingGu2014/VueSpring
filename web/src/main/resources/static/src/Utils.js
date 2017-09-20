@@ -109,9 +109,7 @@ export function signUp(data, url) {
 
         if(status == 200){
             alert("200");
-            localStorage.userEmail = data.email;
-            localStorage.userName = data.alias;
-            localStorage.userUUID = data.userUUID;
+            localStorage.userInfo = JSON.stringify(data)
             document.location.href = '/home';
         }
         else{

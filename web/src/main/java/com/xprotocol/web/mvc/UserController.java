@@ -17,6 +17,7 @@ import com.xprotocol.utils.Validators;
 import com.xprotocol.web.config.XprotocolWebUtils;
 import com.xprotocol.web.exceptions.EntityUpdateException;
 import com.xprotocol.web.exceptions.IncompleteRegistrationInformationException;
+import com.xprotocol.web.exceptions.UserAlreadyExistsException;
 import com.xprotocol.web.exceptions.UserAuthorizationException;
 import java.io.IOException;
 import java.util.Base64;
@@ -70,7 +71,7 @@ public class UserController {
      * @param response : http response
      * @return : new user
      */
-    @RequestMapping(value="/api/user", method=RequestMethod.POST)
+    @RequestMapping(value="/api/signUp", method=RequestMethod.POST)
     public User signUp(HttpServletRequest request, @ModelAttribute("SpringWeb") User user, HttpServletResponse response){
         try{
             if(Validators.isEmptyString(user.getEmail())){            
@@ -82,21 +83,36 @@ public class UserController {
             else if(!Validators.emailValidator(user.getEmail())){
                 throw new IncompleteRegistrationInformationException("The user email is NOT valid!");
             }
+            User existingUser = userSrv.findUserByEmail(user.getEmail());
+            if(null != existingUser){
+                throw new UserAlreadyExistsException("User email "+user.getEmail()+" already exists!");
+            }
             Map<Integer, String> idMap = userSrv.addUser(user.getEmail(), user.getAlias(), user.getPassword());
             if(null != idMap && !idMap.isEmpty()){
-                Iterator it = idMap.keySet().iterator();
+                Iterator it = idMap.entrySet().iterator();
                 Map.Entry element = (Map.Entry)it.next();
                 Integer id = (Integer)element.getKey();
                 String userUUID = (String)element.getValue();
                 user.setUserId(id);
                 user.setUserUUID(userUUID);
                 user.setPassword("");
+                Cookie loggedIn = new Cookie("loggedIn", "true");
+                loggedIn.setMaxAge(60*60);
+                loggedIn.setPath("/");
+                response.addCookie(loggedIn);
                 userSrv.setCurrentLoggedinUser(user);
             }            
         }
         catch(IncompleteRegistrationInformationException ex){
             try {
                 response.sendError(400, "Incomplete user registration information!");
+            } catch (IOException ex1) {
+                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+        }
+        catch(UserAlreadyExistsException ex){
+            try {
+                response.sendError(400, "User already exists!");
             } catch (IOException ex1) {
                 Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
             }

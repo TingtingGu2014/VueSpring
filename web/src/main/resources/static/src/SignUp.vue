@@ -125,37 +125,38 @@
                 }
                 else {
                     url = '/api/signIn'
-                }
-                axios({
-                    method: 'POST',
-                    url: url,
-                    dataType: 'json',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                    auth: {
-                        username: this.email,
-                        password: this.password,
-                    },
-                })
-                .then( (response) => {
-                    var status = response.status;
-                    var data = response.data;
+                    axios({
+                        method: 'POST',
+                        url: url,
+                        dataType: 'json',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        auth: {
+                            username: this.email,
+                            password: this.password,
+                        },
+                    })
+                    .then( (response) => {
+                        var status = response.status;
+                        var data = response.data;
 
-                    if(status == 200){
-//                        alert("200");
-                        localStorage.userInfo = JSON.stringify(data)
-                        this.setDetailsFetched(false)
-                        document.location.href = '/home';
-                    }
-                    else{
-                        alert("Error status : " + status);
-                        return;
-                    }                                   
-                  })
-                  .catch( (error) => {
-                    console.log(error);
-                  });                                    
+                        if(status == 200){
+    //                        alert("200");
+                            localStorage.userInfo = JSON.stringify(data)
+                            this.setDetailsFetched(false)
+                            document.location.href = '/home';
+                        }
+                        else{
+                            alert("Error status : " + status);
+                            return;
+                        }                                   
+                      })
+                      .catch( (error) => {
+                        console.log(error);
+                      });      
+                }
+                                              
             },
             set_current_user: function() {
                 alert('new user!');
