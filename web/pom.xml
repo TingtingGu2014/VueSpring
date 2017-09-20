@@ -39,7 +39,7 @@
     
     <profiles>
         <profile>
-            <id>dev</id>
+            <id>development</id>
             <dependencies>
                 <dependency>
                     <groupId>org.springframework.boot</groupId>
@@ -48,7 +48,7 @@
             </dependencies>
         </profile>
         <profile>
-            <id>prod</id>
+            <id>production</id>
         </profile>
     </profiles>
 
