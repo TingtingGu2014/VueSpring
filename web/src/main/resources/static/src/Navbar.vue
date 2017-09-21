@@ -32,8 +32,6 @@
     import LoginView from './LoginView.vue';
     
     var Utils = require('./Utils')
-    
-    Utils.getErrorPage('403')
                 
     export default {
         components: {LoginView},    

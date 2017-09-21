@@ -105,7 +105,7 @@ public class UserController {
         }
         catch(IncompleteRegistrationInformationException ex){
             try {
-                response.sendError(400, "Incomplete user registration information!");
+                response.sendError(400, "Incomplete or invalid user registration information!");
             } catch (IOException ex1) {
                 Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
             }

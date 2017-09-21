@@ -1,10 +1,10 @@
 <template>
     <div>
-        <div class="container">
+        <div class="container" style="margin-top: 5%">
             <!-- Jumbotron -->
             <div class="jumbotron">
-            <h1><div ref="errorDiv"><span class='fa fa-frown-o red'></span></div></h1>
-              <p class="lead">{{errorMessage}}<em><span id="display-domain"></span></em>.</p>
+            <h1><div ref="errorDiv"><span class='fa fa-frown-o red'>&nbsp;&nbsp;</span></div></h1>
+              <p class="lead" v-html="errorMessage"><em><span id="display-domain"></span></em></p>
                 <div>                    
                     <router-link :to="{ name: 'home'}" class="btn btn-primary">Take Me To The Homepage</router-link>
                 </div>
@@ -16,10 +16,13 @@
 
 <script>
     var Utils = require('./Utils')
+    var errorDetailMessage = sessionStorage.errorMessage
+    errorDetailMessage = Utils.isEmpty(errorDetailMessage) ? '' : errorDetailMessage
     
     export default {
         data: function(){
-            var error = Utils.getErrorPage(this.$route.params.errorCode)
+            var error = Utils.getErrorPage(this.$route.params.errorCode, errorDetailMessage)
+            sessionStorage.errorMessage = ''
             return {
                 errorTitle: error.title,
                 errorMessage: error.message,
