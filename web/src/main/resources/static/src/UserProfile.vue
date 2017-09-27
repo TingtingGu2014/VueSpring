@@ -5,9 +5,11 @@
 
         <!-- form user info -->
         <div class="card card-outline-secondary">
+            
             <div class="card-header">
                 <h6 class="mb-0">Update Your Profile</h6>
             </div>
+            
             <div class="card-block">
                 <form class="form" enctype="multipart/form-data" v-bind:action="'/api/userProfile/'+userUUID" method="post" name="userProfileInfo" role="form" autocomplete="off">
                     <div class="form-group row">
@@ -32,6 +34,12 @@
                         <label class="col-lg-3 col-form-label form-control-label">Xprotocol Name</label>
                         <div class="col-lg-9">
                             <input class="form-control" type="text" v-model="alias">
+                        </div>
+                    </div>
+                    <div class="form-group row">                       
+                        <label class="col-lg-3 col-form-label form-control-label primary">User Authority Roles</label>
+                        <div class="btn-group col-lg-9" role="group" aria-label="...">
+                            <button type="button" class="btn btn-info" v-for="(role, index) in roles.split(',')">{{role}}</button>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -116,6 +124,7 @@
                 state: '',
                 city: '',
                 zipcode: '',
+                roles: '',
             }
         },
         computed: {
@@ -173,6 +182,7 @@
                         this.createdDate = user.createdDate
                         this.firstName = user.firstName
                         this.lastName = user.lastName    
+                        this.roles = user.roles
                     }
                     var details = this.getUserDetails
                     this.major = details.major
@@ -180,25 +190,13 @@
                     this.affiliation = details.affiliation
                     this.city = details.city
                     this.state = details.state
-                    this.zipcode = details.zipcode                                                            
+                    this.zipcode = details.zipcode   
                 }
             }
         },
         watch: {
-            email: function(value) {
-                this.validate_email(value, 'email_message')
-            }
         },
         methods: {
-            validate_email (value, email_message) {
-                if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(value)) {
-                    this[email_message] = '';
-                    return true;
-                } else {
-                    this[email_message] = 'Keep typing...waiting for a valid email';
-                    return false;
-                }
-            },
             onSubmit: function (message, event) {
                 
                 var qs = require('qs');
@@ -251,6 +249,7 @@
                     this.createdDate = user.createdDate
                     this.firstName = user.firstName
                     this.lastName = user.lastName  
+                    this.roles = user.roles
                     localStorage.userInfo = JSON.stringify(user)
                 }
             },
