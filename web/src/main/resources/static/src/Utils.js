@@ -65,7 +65,7 @@ export function userProfileUpdate (object) {
             var data = response.data
             var details = data.userDetails
             var user = data.user
-            if(!Utils.isEmpty(details) && !this.isUserDetailsFetched){
+            if(!isEmpty(details) && !this.isUserDetailsFetched){
                 this.setUserDetails(data.userDetails)
                 this.major = details.major
                 this.address = details.address
@@ -109,9 +109,7 @@ export function signUp(data, url) {
 
         if(status == 200){
             alert("200");
-            localStorage.userEmail = data.email;
-            localStorage.userName = data.alias;
-            localStorage.userUUID = data.userUUID;
+            localStorage.userInfo = JSON.stringify(data)
             document.location.href = '/home';
         }
         else{
@@ -171,8 +169,16 @@ export function isAdminUser () {
     return false;
 }
 
-export function getErrorPage(code) {
+export function getErrorPage(code, errorMessage) {
     var errors = require('./ErrorInfo')
     var errorsObj = errors['default']
-    return errorsObj[code]
+    var error = errorsObj[code]
+    if(!isEmpty(errorMessage)){
+        error['message'] = error['message'] + "<br><b> Error message: </b>" + errorMessage
+    }
+    return error
+}
+
+export function loadErrorPages(status, message){
+    
 }

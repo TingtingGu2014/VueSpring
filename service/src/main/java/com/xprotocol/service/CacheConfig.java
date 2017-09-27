@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.cache.DefaultRedisCachePrefix;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
  * Note: spring-boot-devtools has known issue with using cachemanager so caching is only turned on for production profile
@@ -26,8 +27,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 public class CacheConfig extends CachingConfigurerSupport {
     
     @Autowired
-    @Qualifier("redisTemplate")
-    RedisTemplate<Object, Object> redisOperations;
+    @Qualifier("stringRedisTemplate")
+    StringRedisTemplate redisOperations;
     
     @Bean
     RedisCacheManager redisCacheManager () {
@@ -44,6 +45,7 @@ public class CacheConfig extends CachingConfigurerSupport {
 
         RedisCacheManager redisCacheManager = new RedisCacheManager(redisOperations);
         redisCacheManager.setCachePrefix(new DefaultRedisCachePrefix("xprotocol"));
+        redisCacheManager.setUsePrefix(true);
         redisCacheManager.setTransactionAware(true);
         redisCacheManager.setDefaultExpiration(1200);
         return redisCacheManager;

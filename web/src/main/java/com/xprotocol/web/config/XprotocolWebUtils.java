@@ -10,7 +10,9 @@ import com.xprotocol.service.user.UserService;
 import java.util.Collection;
 import java.util.Iterator;
 import javax.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -20,9 +22,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public class XprotocolWebUtils {
     
-    @Autowired
-    public static UserService userSrv;
-    
     public static String getContextUrlFromRequest(HttpServletRequest request){
         String contextUrl = request.getServletPath();
         if(!contextUrl.startsWith("/") && contextUrl.contains("/")){
@@ -31,15 +30,13 @@ public class XprotocolWebUtils {
         return contextUrl;
     }
     
-    public static User getCurrentSessionUser (){
-        org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String email = user.getUsername();
-        return userSrv.findUserByEmail(email);
+    public static org.springframework.security.core.userdetails.User getCurrentSessionUser (){
+        return (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
     
     public static Collection<GrantedAuthority> getCurrentSessionUserAuthorities(){
-        org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return user.getAuthorities();
+        org.springframework.security.core.userdetails.User currentUser = getCurrentSessionUser();
+        return currentUser.getAuthorities();
     }
     
     public static boolean currentSessionUserHasAuthority(String role){

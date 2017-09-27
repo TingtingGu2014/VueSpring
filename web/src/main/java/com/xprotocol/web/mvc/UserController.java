@@ -17,10 +17,12 @@ import com.xprotocol.utils.Validators;
 import com.xprotocol.web.config.XprotocolWebUtils;
 import com.xprotocol.web.exceptions.EntityUpdateException;
 import com.xprotocol.web.exceptions.IncompleteRegistrationInformationException;
+import com.xprotocol.web.exceptions.UserAlreadyExistsException;
 import com.xprotocol.web.exceptions.UserAuthorizationException;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -48,6 +50,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @ComponentScan("com.xprotocol.service")
 public class UserController {
+    @Autowired
+    UserService userSrv;
     
     @Autowired
     UserDetailsService userDetailsSrv;
@@ -57,7 +61,7 @@ public class UserController {
     
     @RequestMapping(value="/api/admin/users")
     public List<User> findAll(HttpServletRequest request){
-        return XprotocolWebUtils.userSrv.findAll();
+        return userSrv.findAll();
     }
     
     /**
@@ -67,11 +71,11 @@ public class UserController {
      * @param response : http response
      * @return : new user
      */
-    @RequestMapping(value="/api/user", method=RequestMethod.POST)
+    @RequestMapping(value="/api/signUp", method=RequestMethod.POST)
     public User signUp(HttpServletRequest request, @ModelAttribute("SpringWeb") User user, HttpServletResponse response){
         try{
             if(Validators.isEmptyString(user.getEmail())){            
-                throw new IncompleteRegistrationInformationException("The user email is empty!");
+                throw new IncompleteRegistrationInformationException("The user email cannot be empty!");
             }
             else if(Validators.isEmptyString(user.getPassword())){
                 throw new IncompleteRegistrationInformationException("The user password is empty!");
@@ -79,13 +83,36 @@ public class UserController {
             else if(!Validators.emailValidator(user.getEmail())){
                 throw new IncompleteRegistrationInformationException("The user email is NOT valid!");
             }
-            int id = XprotocolWebUtils.userSrv.addUser(user.getEmail(), user.getAlias(), user.getPassword());
-            user.setUserId(id);
-            user.setPassword("");
+            User existingUser = userSrv.findUserByEmail(user.getEmail());
+            if(null != existingUser){
+                throw new UserAlreadyExistsException("User email "+user.getEmail()+" already exists!");
+            }
+            Map<Integer, String> idMap = userSrv.addUser(user.getEmail(), user.getAlias(), user.getPassword());
+            if(null != idMap && !idMap.isEmpty()){
+                Iterator it = idMap.entrySet().iterator();
+                Map.Entry element = (Map.Entry)it.next();
+                Integer id = (Integer)element.getKey();
+                String userUUID = (String)element.getValue();
+                user.setUserId(id);
+                user.setUserUUID(userUUID);
+                user.setPassword("");
+                Cookie loggedIn = new Cookie("loggedIn", "true");
+                loggedIn.setMaxAge(60*60);
+                loggedIn.setPath("/");
+                response.addCookie(loggedIn);
+                userSrv.setCurrentLoggedinUser(user);
+            }            
         }
         catch(IncompleteRegistrationInformationException ex){
             try {
-                response.sendError(400, "Incomplete user registration information!");
+                response.sendError(400, "Incomplete or invalid user registration information!");
+            } catch (IOException ex1) {
+                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+        }
+        catch(UserAlreadyExistsException ex){
+            try {
+                response.sendError(400, "User already exists!");
             } catch (IOException ex1) {
                 Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
             }
@@ -108,6 +135,7 @@ public class UserController {
     @RequestMapping(value = "/api/signout", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void signOut(HttpServletRequest request, HttpServletResponse response) {
+        userSrv.removeCurrentLoggedinUser(userSrv.findUserByEmail(XprotocolWebUtils.getCurrentSessionUser().getUsername()));
         Cookie loggedIn = new Cookie("loggedIn", "");
         loggedIn.setMaxAge(0);
         loggedIn.setPath("/");
@@ -119,16 +147,16 @@ public class UserController {
         
         try{           
             if(!XprotocolWebUtils.currentSessionUserHasAuthority("admin")){
-                User currentUser = XprotocolWebUtils.getCurrentSessionUser();
+                User currentUser = userSrv.getCurrentLoggedinUser(userSrv, XprotocolWebUtils.getCurrentSessionUser().getUsername());
                 if(!currentUser.getUserUUID().equals(userUUIDStr)){
-                    throw new UserAuthorizationException("User "+currentUser.getEmail()+ " cannot check other user's profile!");
+                    throw new UserAuthorizationException("Non-admin user "+currentUser.getEmail()+ " cannot check other user's profile!");
                 }
             }
             Map<String, Object> userProfileMap = new HashMap<>();
             if(!Validators.isValidUUID(userUUIDStr)){
                 throw new InvalidUUIDException("Invalid user UUID: "+userUUIDStr);
             }
-            User user = XprotocolWebUtils.userSrv.findUserByUUID(userUUIDStr);
+            User user = userSrv.findUserByUUID(userUUIDStr);
             if(null != user){
                 Map<String, Object> userDetailsMap = new HashMap<>();
                 UserDetails details = userDetailsSrv.findUserDetailsByUserId(user.getUserId());
@@ -171,21 +199,30 @@ public class UserController {
                 throw new InvalidUUIDException("Invalid user UUID: "+userUUIDStr);
             }
             
-            User user = XprotocolWebUtils.userSrv.findUserByUUID(userUUIDStr);            
+            User user = userSrv.findUserByUUID(userUUIDStr);            
             Map<String, Object> userProfileMap = new HashMap<>();
    
             if(null != user){
+                
+                String email = (String)request.getParameter("email");
+                String firstName = (String)request.getParameter("firstName");
+                String lastName = (String)request.getParameter("lastName");
+                String alias = (String)request.getParameter("alias");
 
                 Map<String, Object> valueMap = new HashMap<>();
-                UUID userUUID = UUID.fromString(userUUIDStr);
-                valueMap.put("email", (String)request.getParameter("email"));
-                valueMap.put("firstName", (String)request.getParameter("firstName"));
-                valueMap.put("lastName", (String)request.getParameter("lastName"));
-                valueMap.put("alias", (String)request.getParameter("alias"));
+                valueMap.put("email", email);
+                valueMap.put("firstName", firstName);
+                valueMap.put("lastName", lastName);
+                valueMap.put("alias", alias);
                 valueMap.put("userUUID", userUUIDStr);
                 rowAffected = persistenceSrv.updateEntityByUUID("users", "userUUID", userUUIDStr, valueMap);
                 
                 if(rowAffected > 0){
+                    user.setFirstName(firstName);
+                    user.setLastName(lastName);
+                    user.setAlias(alias);
+                    userSrv.setCurrentLoggedinUser(user);
+                    
                     details.setUserId(user.getUserId());
                     rowAffected = userDetailsSrv.addOrUpdateUserDetailsWithUserId(details);
                     if(rowAffected == -1){
@@ -256,9 +293,9 @@ public class UserController {
                 throw new IncompleteRegistrationInformationException("The user email is NOT valid!");
             }
             try{
-                user = XprotocolWebUtils.userSrv.userLogin(email, password);
+                user = userSrv.userLogin(email, password);
                 if(null != user){
-                    
+                    userSrv.setCurrentLoggedinUser(user);
                     Cookie loggedIn = new Cookie("loggedIn", "true");
                     loggedIn.setMaxAge(60*60);
                     loggedIn.setPath("/");
