@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 public interface UserRolesService {
 
     public int addUserRolesByUserIdRoleId(int userId, int roleId);
+    
+    public int updateUserRolesByUserIdAndRoleNames(int userId, List<String> roleNames);
 
     public void deleteUserRolesByUserId(int userId);
 

@@ -36,5 +36,6 @@ public class WebAppConfig extends WebMvcConfigurerAdapter {
         registry.addViewController("/signup").setViewName("forward:/");
         registry.addViewController("/login").setViewName("forward:/");
         registry.addViewController("/errors/**").setViewName("forward:/");
+        registry.addViewController("/admin/**").setViewName("forward:/");
     }
 }

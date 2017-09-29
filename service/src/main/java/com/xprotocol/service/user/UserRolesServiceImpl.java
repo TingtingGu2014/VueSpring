@@ -8,11 +8,15 @@ package com.xprotocol.service.user;
 import com.xprotocol.persistence.dao.UserRolesRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Service;
 
 /**
  *
  * @author Tao Zhao
  */
+@Service
+@ComponentScan("com.xprotocol.persistence")
 public class UserRolesServiceImpl implements UserRolesService {
     
     @Autowired
@@ -21,6 +25,11 @@ public class UserRolesServiceImpl implements UserRolesService {
     @Override
     public int addUserRolesByUserIdRoleId(int userId, int roleId) {
         return userRolesRepo.addUserRolesByUserIdRoleId(userId, roleId);
+    }
+    
+    @Override
+    public int updateUserRolesByUserIdAndRoleNames(int userId, List<String> roleNames) {
+        return userRolesRepo.updateUserRolesByUserIdAndRoleNames(userId, roleNames);
     }
 
     @Override

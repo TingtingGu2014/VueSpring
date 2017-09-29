@@ -13,6 +13,9 @@ import com.xprotocol.service.user.UserDetailsService;
 import com.xprotocol.service.user.UserService;
 import com.xprotocol.service.exceptions.UserDoesNotExistException;
 import com.xprotocol.service.persistence.PersistenceService;
+import com.xprotocol.service.user.UserRolesService;
+import com.xprotocol.utils.UtilsHelper;
+import com.xprotocol.utils.UtilsStringHelper;
 import com.xprotocol.utils.Validators;
 import com.xprotocol.web.config.XprotocolWebUtils;
 import com.xprotocol.web.exceptions.EntityUpdateException;
@@ -20,6 +23,7 @@ import com.xprotocol.web.exceptions.IncompleteRegistrationInformationException;
 import com.xprotocol.web.exceptions.UserAlreadyExistsException;
 import com.xprotocol.web.exceptions.UserAuthorizationException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,6 +63,9 @@ public class UserController {
     
     @Autowired
     PersistenceService persistenceSrv;
+    
+    @Autowired
+    UserRolesService userRolesSrv;
     
     @RequestMapping(value="/api/admin/users")
     public List<User> findAll(HttpServletRequest request){
@@ -158,7 +166,6 @@ public class UserController {
             }
             User user = userSrv.findUserByUUID(userUUIDStr);
             if(null != user){
-                Map<String, Object> userDetailsMap = new HashMap<>();
                 UserDetails details = userDetailsSrv.findUserDetailsByUserId(user.getUserId());
                 if(null != details){
                     userProfileMap.put("userDetails", details);
@@ -183,6 +190,40 @@ public class UserController {
             } catch (IOException ex1) {
                 Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
             }
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+//    @PreAuthorize("hasRole('admin')")
+    @RequestMapping(value = "/api/admin/userProfile/{userUUIDStr}", method = RequestMethod.GET)
+    public Map<String, Object> getUserProfileByAdmin(HttpServletResponse response, @PathVariable("userUUIDStr") String userUUIDStr) {
+        
+        try{                       
+            Map<String, Object> userProfileMap = new HashMap<>();
+            if(!Validators.isValidUUID(userUUIDStr)){
+                throw new InvalidUUIDException("Invalid user UUID: "+userUUIDStr);
+            }
+            User user = userSrv.findUserByUUID(userUUIDStr);
+            if(null != user){
+                userProfileMap.put("user", user);
+                UserDetails details = userDetailsSrv.findUserDetailsByUserId(user.getUserId());
+                if(null != details){
+                    userProfileMap.put("userDetails", details);
+                }
+                return userProfileMap;
+            }
+            else{
+                throw new UserDoesNotExistException("The user with UUID = " + userUUIDStr + "does NOT exist!");
+            }
+        }
+        catch(NumberFormatException | UserDoesNotExistException ex){
+            try {
+                response.sendError(400, ex.getMessage());
+            } catch (IOException ex1) {
+                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+        } catch (InvalidUUIDException ex) {
             Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
@@ -266,6 +307,93 @@ public class UserController {
         return null;
     }
     
+//    @PreAuthorize("hasRole('admin')")
+    @ResponseBody
+    @RequestMapping(value = "/api/admin/userProfile/{userUUIDStr}", method = RequestMethod.POST)
+    public Map<String, Object> updateUserProfileByAdmin(HttpServletRequest request, HttpServletResponse response, @PathVariable("userUUIDStr") String userUUIDStr, @ModelAttribute UserDetails details) {
+        
+        int rowAffected = -1;
+        
+        try{            
+            if(!Validators.isValidUUID(userUUIDStr)){
+                throw new InvalidUUIDException("Invalid user UUID: "+userUUIDStr);
+            }
+            
+            User user = userSrv.findUserByUUID(userUUIDStr);            
+            Map<String, Object> userProfileMap = new HashMap<>();
+   
+            if(null != user){
+                
+                String email = (String)request.getParameter("email");
+                String firstName = (String)request.getParameter("firstName");
+                String lastName = (String)request.getParameter("lastName");
+                String alias = (String)request.getParameter("alias");
+                String roles = (String)request.getParameter("roles");
+
+                Map<String, Object> valueMap = new HashMap<>();
+                valueMap.put("email", email);
+                valueMap.put("firstName", firstName);
+                valueMap.put("lastName", lastName);
+                valueMap.put("alias", alias);
+                valueMap.put("userUUID", userUUIDStr);
+//                valueMap.put("roles", roles);
+                rowAffected = persistenceSrv.updateEntityByUUID("users", "userUUID", userUUIDStr, valueMap);
+                
+                if(rowAffected > 0){
+                    
+                    List<String> oldRoles = Arrays.asList(user.getRoles());
+                    List<String> newRoles = Arrays.asList(roles);
+                    
+                    if(!UtilsStringHelper.isEqualStringLists(newRoles, oldRoles)){
+                        userRolesSrv.updateUserRolesByUserIdAndRoleNames(user.getUserId(), newRoles);
+                    }
+                    
+                    user.setFirstName(firstName);
+                    user.setLastName(lastName);
+                    user.setAlias(alias);
+                    user.setRoles(roles);
+                    
+                    details.setUserId(user.getUserId());
+                    rowAffected = userDetailsSrv.addOrUpdateUserDetailsWithUserId(details);
+                    if(rowAffected == -1){
+                        response.sendError(500, "Cannot update or add the user detail information for UUID: "+userUUIDStr+"! ");
+                    }
+                    else{                    
+                        valueMap.put("createdDate", user.getCreatedDate());
+                        valueMap.put("password", "");
+                        valueMap.put("userUUID", userUUIDStr);
+                        userProfileMap.put("user", valueMap);                    
+                        userProfileMap.put("userDetails", details);
+                    }
+                }
+                else {
+                    throw new EntityUpdateException("Cannot update user information with UUID = "+userUUIDStr);
+                }
+   
+                return userProfileMap;
+            }
+            else{
+                throw new UserDoesNotExistException("The user with UUID = " + userUUIDStr + "does NOT exist!");
+            }
+        }
+        catch(NumberFormatException | UserDoesNotExistException ex){
+            try {
+                response.sendError(400, ex.getMessage());
+            } catch (IOException ex1) {
+                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+        } catch (InvalidUUIDException | IOException | NoExistingIdColumnForAddOrUpdateDataOpExcpetion ex) {
+            try {
+                response.sendError(400, ex.getMessage());
+            } catch (IOException ex1) {
+                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (EntityUpdateException ex) {
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
     /**
      *
      * @param request : http request
