@@ -79,7 +79,7 @@ public class UserRepository {
             return jdbcTemplate.queryForObject(
                     "SELECT users.*, GROUP_CONCAT(roleName SEPARATOR ',') AS roles FROM users " +
                     "LEFT JOIN userRoles ON users.userId = userRoles.userId " +
-                    "INNER JOIN roles ON userRoles.roleId = roles.roleId " +
+                    "LEFT JOIN roles ON userRoles.roleId = roles.roleId " +
                     "WHERE userUUID=? AND active=? " +
                     "GROUP BY userId;", 
                     new Object[]{UtilsHelper.getBytesFromUUID(userUUID), true}, new UserRowMapper());
@@ -96,7 +96,7 @@ public class UserRepository {
             return jdbcTemplate.queryForObject(
                     "SELECT users.*, GROUP_CONCAT(roleName SEPARATOR ',') AS roles FROM users " +
                     "LEFT JOIN userRoles ON users.userId = userRoles.userId " +
-                    "INNER JOIN roles ON userRoles.roleId = roles.roleId " +
+                    "LEFT JOIN roles ON userRoles.roleId = roles.roleId " +
                     "WHERE email=? AND password=? AND active=? " +
                     "GROUP BY userId;", 
                     new Object[]{email, password, true}, new UserRowMapper());
@@ -112,7 +112,7 @@ public class UserRepository {
             return jdbcTemplate.queryForObject(
                     "SELECT users.*, GROUP_CONCAT(roleName SEPARATOR ',') AS roles FROM users " +
                     "LEFT JOIN userRoles ON users.userId = userRoles.userId " +
-                    "INNER JOIN roles ON userRoles.roleId = roles.roleId " +
+                    "LEFT JOIN roles ON userRoles.roleId = roles.roleId " +
                     "WHERE email=? AND active=? " +
                     "GROUP BY userId;", 
                     new Object[]{email, true}, new UserRowMapper());
