@@ -182,3 +182,73 @@ export function getErrorPage(code, errorMessage) {
 export function loadErrorPages(status, message){
     
 }
+
+/**
+ * Compare and return the differences of two string arrays
+ * 
+ * @param {type} strArr1 : string array to be compared
+ * @param {type} strArr2 : string array for comparing
+ * @returns {undefined}
+ */
+export function getArraydifferences(strArr1, strArr2){
+    var strArrSorted1 = strArr1.sort()
+    var strArrSorted2 = strArr2.sort()
+    var res1 = []
+    var res2 = []
+    var l = 0
+    var k = 0
+    var i = 0
+    var j = 0
+    while(i < strArrSorted1.length) {
+        while(j < strArrSorted2.length) {
+            while(strArrSorted1[i] < strArrSorted2[j]){
+                res1[k] = strArrSorted1[i]
+                k++
+                i++                
+            }              
+            if(strArrSorted1[i] == strArrSorted2[j]){                
+                i++
+                j++
+                continue
+            }
+            while(strArrSorted1[i] > strArrSorted2[j]){
+                res2[l] = strArrSorted2[j]
+                l++
+                j++
+            }
+        }
+        res1[k] = strArrSorted1[i]
+        k++
+        i++
+    }
+    return res1
+}
+
+export function getAllUserRoles() {
+    return axios({
+        method: 'get',
+        url: '/api/admin/roles',
+        dataType: 'json',
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
+    })
+    .then( (response) => {
+        var status = response.status;
+        if(status == 200 || status == "200"){  
+            var roleNames = ''
+            var roles = response.data
+            for(var i = 0; i < roles.length; i++){
+                if(roles[i].hasOwnProperty("roleName")){
+                    roleNames += roles[i].roleName + ","
+                }
+            }
+            roleNames = roleNames.substr(0,roleNames.length-1)
+            return roleNames
+        }
+        else{
+            alert("status " + status + ", cannot get the roles!");
+        }                                   
+    })
+    .catch( (error) => {
+        console.log(error);
+    }); 
+}

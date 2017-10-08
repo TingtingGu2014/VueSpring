@@ -36,23 +36,44 @@
                             <input class="form-control" type="text" v-model="alias">
                         </div>
                     </div>
-                    <div class="form-group row">  
+                    <div class="form-group row justify-content-md-center">  
                         <input type="hidden" name="roles" v-model="roles"/>
-                        <label class="col-lg-3 col-form-label form-control-label primary">User Authority Roles</label>
-                        <div class="btn-group col-lg-9" role="group" aria-label="...">
-                            <label  class="btn label-user-role">1. Regular</label>&nbsp;&nbsp;
-                            <label  class="btn label-user-role" v-for="(role, index) in roles.split(',')" v-if="role != 'regular' && role != ''">
-                                {{index+2}}.&nbsp;{{role}}
+                        <label class="col col-lg-3 col-form-label form-control-label primary">User Authority Roles</label>
+                        <div class="col  col-lg-9" role="group" aria-label="...">
+                            <label  class="col btn label-user-role col-lg-3 float-left" v-for="(role, index) in roles.split(',')" v-if="role != ''">
+                                {{index+1}}.&nbsp;{{role}}
                                 <a v-bind:id="role" href="#" class="trash-can" v-on:click.prevent="removeRole">
-                                    <i class="fa fa-trash" aria-hidden="true"></i>                                    
-                                </a>&nbsp;&nbsp;
-                            </label>
-                            <label  class="btn label-user-role" v-if="oldRoles.split(',').length>1">Restore roles
-                                <a v-bind:id="role" href="#" class="trash-can" v-on:click.prevent="restoreRoles">
-                                    <i class="fa fa-undo" aria-hidden="true"></i>                                    
-                                </a>&nbsp;&nbsp;
+                                    <i class="fa fa-trash" aria-hidden="true" v-if="role != 'regular' "></i>                                    
+                                </a>&nbsp;&nbsp;                                
                             </label>                            
                         </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label form-control-label primary"></label>
+                        <label  class="btn label-user-role" >Restore roles
+                            <a v-bind:id="role" href="#" class="trash-can" v-on:click.prevent="restoreRoles">
+                                <i class="fa fa-undo" aria-hidden="true"></i>                                    
+                            </a>&nbsp;&nbsp;
+                        </label>     
+                        <label  class="btn label-user-role" >Add other roles
+                            <a v-bind:id="role" href="#" class="trash-can" v-on:click.prevent="displayRoles">
+                                <i class="fa fa-user-plus" aria-hidden="true"></i>                                   
+                            </a>&nbsp;&nbsp;
+                        </label>
+                    </div>
+                    <div class="form-group row other-roles-row" style="display:none" v-if="otherRoles != ''">
+                        <label class="col col-lg-3 col-form-label form-control-label primary">Roles to be added</label>
+                        <div class="col  col-lg-9" role="group" aria-label="...">
+                            <label  class="col btn label-user-role col-lg-3 float-left" v-for="(role, index) in otherRoles.split(',')" v-if="role != ''">
+                                {{index+1}}.&nbsp;{{role}}
+                                <a v-bind:id="role" href="#" class="trash-can" v-on:click.prevent="removeOtherRole">
+                                    <i class="fa fa-plus-square" aria-hidden="true" v-if="role != 'regular' "></i>                                    
+                                </a>&nbsp;&nbsp;                                
+                            </label>                            
+                        </div>
+                    </div>
+                    <div class="form-group row other-roles-row" style="display:none" v-else>
+                        <label class="col col-lg-3 col-form-label form-control-label primary">No roles to be added</label>
                     </div>
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label form-control-label">Major</label>
@@ -138,9 +159,21 @@
                 zipcode: '',
                 roles: '',
                 oldRoles: '',
+                allRoles: '',
             }
         },
         computed: {
+            otherRoles: function(){
+                var allRoles = this.allRoles
+                if(!Utils.isEmpty(allRoles)){
+                    var roles = this.roles
+                    var diff = Utils.getArraydifferences(allRoles.split(','), roles.split(','))
+                    return diff.toString()
+                }
+                else{
+                    return '';
+                }
+            },            
 //            ...mapGetters({                
 //                isUserDetailsFetched: 'userModule/isUserDetailsFetched',                
 //                getUserDetails: 'userModule/getUserDetails',
@@ -173,7 +206,7 @@
                         console.log(error);
                     });
                 }
-                else{                    
+                else{                   
                     // throw an exception here!
                 }
             }
@@ -229,9 +262,9 @@
                 var target = $(event.currentTarget)
                 var role = target.attr('id')
                          
-                var roles = this.roles;
+                var roles = this.roles
                 var rolesArr = roles.split(',')
-                var index = rolesArr.indexOf(role);
+                var index = rolesArr.indexOf(role)
  
                 if (index > -1) {
                    rolesArr.splice(index, 1);
@@ -239,8 +272,30 @@
                 
                 this.roles = rolesArr.toString()
             },
+            removeOtherRole: function (event) {
+                if (event){
+                    event.preventDefault()
+                }
+                var target = $(event.currentTarget)
+                var role = target.attr('id')
+                
+                var currentRoles = this.roles
+                currentRoles += ',' + role
+                this.roles = currentRoles
+            },
             restoreRoles: function (event) {
                 this.roles = this.oldRoles
+            },
+            displayRoles: function (event) {
+                Utils.getAllUserRoles()
+                .then((data) => {
+                    alert(data)
+                    this.allRoles = data;
+                })
+                .catch((err) => {
+                    alert("oops, something happened")
+                });
+                $(".other-roles-row").show()
             },
             ...mapMutations({                                
 //                setUserDetails: 'userModule/setUserDetails',

@@ -6,13 +6,16 @@
 package com.xprotocol.web.mvc;
 
 import com.xprotocol.persistence.exceptions.NoExistingIdColumnForAddOrUpdateDataOpExcpetion;
+import com.xprotocol.persistence.model.Role;
 import com.xprotocol.persistence.model.User;
 import com.xprotocol.persistence.model.UserDetails;
+import com.xprotocol.service.ApplicationContextProvider;
 import com.xprotocol.service.exceptions.InvalidUUIDException;
 import com.xprotocol.service.user.UserDetailsService;
 import com.xprotocol.service.user.UserService;
 import com.xprotocol.service.exceptions.UserDoesNotExistException;
 import com.xprotocol.service.persistence.PersistenceService;
+import com.xprotocol.service.user.RoleService;
 import com.xprotocol.service.user.UserRolesService;
 import com.xprotocol.utils.UtilsHelper;
 import com.xprotocol.utils.UtilsStringHelper;
@@ -23,6 +26,7 @@ import com.xprotocol.web.exceptions.IncompleteRegistrationInformationException;
 import com.xprotocol.web.exceptions.UserAlreadyExistsException;
 import com.xprotocol.web.exceptions.UserAuthorizationException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
@@ -59,13 +63,26 @@ public class UserController {
     UserService userSrv;
     
     @Autowired
-    UserDetailsService userDetailsSrv;
-    
-    @Autowired
     PersistenceService persistenceSrv;
+
+    private UserRolesService userRolesSrv;
+    private UserDetailsService userDetailsSrv;
+    private RoleService roleSrv;
     
     @Autowired
-    UserRolesService userRolesSrv;
+    public void setUserRolesService(UserRolesService userRolesSrv){
+        this.userRolesSrv = userRolesSrv;
+    }
+    
+    @Autowired
+    public void setUserDetailsService(UserDetailsService userDetailsSrv){
+        this.userDetailsSrv = userDetailsSrv;
+    }
+    
+    @Autowired
+    public void setRoleService(RoleService roleService){
+        this.roleSrv = roleService;
+    }
     
     @RequestMapping(value="/api/admin/users")
     public List<User> findAll(HttpServletRequest request){
@@ -229,6 +246,24 @@ public class UserController {
         return null;
     }
     
+    @RequestMapping(value = "/api/admin/roles", method = RequestMethod.GET)
+    public List<Role> getUserRoles(HttpServletResponse response) {
+        
+        try{      
+            List<Role> roles = new ArrayList<>();
+            roles = roleSrv.findAll();
+            return roles;
+        }
+        catch(Exception ex){
+            try {
+                response.sendError(500, ex.getMessage());
+            } catch (IOException ex1) {
+                Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+        }
+        return null;
+    }
+    
     @ResponseBody
     @RequestMapping(value = "/api/userProfile/{userUUIDStr}", method = RequestMethod.POST)
     public Map<String, Object> updateUserProfile(HttpServletRequest request, HttpServletResponse response, @PathVariable("userUUIDStr") String userUUIDStr, @ModelAttribute UserDetails details) {
@@ -341,8 +376,8 @@ public class UserController {
                 
                 if(rowAffected > 0){
                     
-                    List<String> oldRoles = Arrays.asList(user.getRoles());
-                    List<String> newRoles = Arrays.asList(roles);
+                    List<String> oldRoles = Arrays.asList(user.getRoles().split(","));
+                    List<String> newRoles = Arrays.asList(roles.split(","));
                     
                     if(!UtilsStringHelper.isEqualStringLists(newRoles, oldRoles)){
                         userRolesSrv.updateUserRolesByUserIdAndRoleNames(user.getUserId(), newRoles);
