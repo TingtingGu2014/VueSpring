@@ -7,7 +7,7 @@
         <div class="card card-outline-secondary">
             
             <div class="card-header">
-                <h6 class="mb-0">Update Your Profile</h6>
+                <h6 class="mb-0">Manage User Information</h6>
             </div>
             
             <div class="card-block">
@@ -36,12 +36,44 @@
                             <input class="form-control" type="text" v-model="alias">
                         </div>
                     </div>
-                    <div class="form-group row">  
+                    <div class="form-group row justify-content-md-center">  
                         <input type="hidden" name="roles" v-model="roles"/>
-                        <label class="col-lg-3 col-form-label form-control-label primary">User Authority Roles</label>
-                        <div class="btn-group col-lg-9" role="group" aria-label="...">
-                            <label  class="btn label-user-role" v-for="(role, index) in roles.split(',')">{{index+1}}.&nbsp;{{role}}</label>                        
+                        <label class="col col-lg-3 col-form-label form-control-label primary">User Authority Roles</label>
+                        <div class="col  col-lg-9" role="group" aria-label="...">
+                            <label  class="col btn label-user-role col-lg-3 float-left" v-for="(role, index) in roles.split(',')" v-if="role != ''">
+                                {{index+1}}.&nbsp;{{role}}
+                                <a v-bind:id="role" href="#" class="trash-can" v-on:click.prevent="removeRole">
+                                    <i class="fa fa-trash" aria-hidden="true" v-if="role != 'regular' "></i>                                    
+                                </a>&nbsp;&nbsp;                                
+                            </label>                            
                         </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label form-control-label primary"></label>
+                        <label  class="btn label-user-role" >Restore roles
+                            <a v-bind:id="role" href="#" class="trash-can" v-on:click.prevent="restoreRoles">
+                                <i class="fa fa-undo" aria-hidden="true"></i>                                    
+                            </a>&nbsp;&nbsp;
+                        </label>     
+                        <label  class="btn label-user-role" >Add other roles
+                            <a v-bind:id="role" href="#" class="trash-can" v-on:click.prevent="displayRoles">
+                                <i class="fa fa-user-plus" aria-hidden="true"></i>                                   
+                            </a>&nbsp;&nbsp;
+                        </label>
+                    </div>
+                    <div class="form-group row other-roles-row" style="display:none" v-if="otherRoles != ''">
+                        <label class="col col-lg-3 col-form-label form-control-label primary">Roles to be added</label>
+                        <div class="col  col-lg-9" role="group" aria-label="...">
+                            <label  class="col btn label-user-role col-lg-3 float-left" v-for="(role, index) in otherRoles.split(',')" v-if="role != ''">
+                                {{index+1}}.&nbsp;{{role}}
+                                <a v-bind:id="role" href="#" class="trash-can" v-on:click.prevent="removeOtherRole">
+                                    <i class="fa fa-plus-square" aria-hidden="true" v-if="role != 'regular' "></i>                                    
+                                </a>&nbsp;&nbsp;                                
+                            </label>                            
+                        </div>
+                    </div>
+                    <div class="form-group row other-roles-row" style="display:none" v-else>
+                        <label class="col col-lg-3 col-form-label form-control-label primary">No roles to be added</label>
                     </div>
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label form-control-label">Major</label>
@@ -115,7 +147,7 @@
             return {
                 email: '',
                 alias: '',
-                userUUID: '',
+                userUUID: this.$route.params.userUUID,
                 createdDate: '',
                 firstName: '',
                 lastName: '',
@@ -126,39 +158,44 @@
                 city: '',
                 zipcode: '',
                 roles: '',
+                oldRoles: '',
+                allRoles: '',
             }
         },
         computed: {
-            ...mapGetters({                
-                isUserDetailsFetched: 'userModule/isUserDetailsFetched',                
-                getUserDetails: 'userModule/getUserDetails',
-            })
+            otherRoles: function(){
+                var allRoles = this.allRoles
+                if(!Utils.isEmpty(allRoles)){
+                    var roles = this.roles
+                    var diff = Utils.getArraydifferences(allRoles.split(','), roles.split(','))
+                    return diff.toString()
+                }
+                else{
+                    return '';
+                }
+            },            
+//            ...mapGetters({                
+//                isUserDetailsFetched: 'userModule/isUserDetailsFetched',                
+//                getUserDetails: 'userModule/getUserDetails',
+//            })
         },
-        created: function() {//alert('profile is being created!');           
-            
+        created: function() {
             var loggedIn = !Utils.isEmpty(Utils.readCookie('loggedIn'));
             if(loggedIn === false){
                 document.location.href = '/login';
             }
             else{
-                var userUUID = ''
-                try {
-                    var userInfo = JSON.parse(localStorage.userInfo)
-                    userUUID = userInfo.userUUID
-                }
-                catch(err) {
-                    console.log(err.message)
-                }
+                var userUUID = this.userUUID
                 var detailsFetched = this.isUserDetailsFetched
                 if(!detailsFetched == true){
                     axios({
                         method: 'get',
                         dataType: 'json',
-                        url: '/api/userProfile/'+userUUID,
+                        url: '/api/admin/userProfile/'+userUUID,
                     }).then( (response) => {
                         if(response.status === 200){
                             var data = response.data
-                            this.resetUserProfile(data)
+                            this.resetUserProfileAdmin(data)
                         }
                         else{
                             alert("not 200");
@@ -169,51 +206,22 @@
                         console.log(error);
                     });
                 }
-                else{                    
-                    if(detailsFetched == true){
-                        try{
-                            var user = JSON.parse(localStorage.userInfo)
-                        }
-                        catch(err) {
-                            console.log(err.message)
-                        }
-                        this.email = user.email
-                        this.alias = user.alias
-                        this.userUUID = user.userUUID
-                        this.createdDate = user.createdDate
-                        this.firstName = user.firstName
-                        this.lastName = user.lastName    
-                        this.roles = user.roles
-                    }
-                    var details = this.getUserDetails
-                    this.major = details.major
-                    this.address = details.address
-                    this.affiliation = details.affiliation
-                    this.city = details.city
-                    this.state = details.state
-                    this.zipcode = details.zipcode   
+                else{                   
+                    // throw an exception here!
                 }
             }
         },
-        watch: {
-        },
         methods: {
-            onSubmit: function (message, event) {
-                
+            onSubmit: function (event) {
                 var qs = require('qs');
-                var userInfo = null
-                try{
-                    userInfo = JSON.parse(localStorage.userInfo)
-                }
-                catch(err) {
-                    console.log(err.message)
-                }
-                axios.post('/api/userProfile/'+userInfo.userUUID, qs.stringify(this.$data))
+                var userUUID = this.userUUID
+
+                axios.post('/api/admin/userProfile/'+userUUID, qs.stringify(this.$data))
                 .then( (response) => {
                     if(response.status === 200){
                         alert('Your profile information has been updated!')
                         var data = response.data
-                        this.resetUserProfile(data)
+                        this.resetUserProfileAdmin(data)
                     }
                             
                 })
@@ -222,27 +230,9 @@
                     console.log(error);
                 });
             },           
-            resetUserProfile: function (data){
+            resetUserProfileAdmin: function (data){
                 var details = data.userDetails
                 var user = data.user
-                this.setUserDetails(details)
-                if(!Utils.isEmpty(details)){                    
-                    this.major = details.major
-                    this.address = details.address
-                    this.affiliation = details.affiliation
-                    this.city = details.city
-                    this.state = details.state
-                    this.zipcode = details.zipcode
-                    this.setDetailsFetched(true)
-                }  
-                if(Utils.isEmpty(user)) {
-                    try{
-                        user = JSON.parse(localStorage.userInfo)
-                    }
-                    catch(err) {
-                        console.log(err.message)
-                    }
-                }
                 if(!Utils.isEmpty(user)){
                     this.email = user.email
                     this.alias = user.alias
@@ -251,17 +241,70 @@
                     this.firstName = user.firstName
                     this.lastName = user.lastName  
                     this.roles = user.roles
-                    localStorage.userInfo = JSON.stringify(user)
+                    this.oldRoles = user.roles
                 }
+                else{
+                    //throw new exception here
+                }
+                if(!Utils.isEmpty(details)){                    
+                    this.major = details.major
+                    this.address = details.address
+                    this.affiliation = details.affiliation
+                    this.city = details.city
+                    this.state = details.state
+                    this.zipcode = details.zipcode
+                }                  
+            },
+            removeRole : function (event) {
+                if (event){
+                    event.preventDefault()
+                }
+                var target = $(event.currentTarget)
+                var role = target.attr('id')
+                         
+                var roles = this.roles
+                var rolesArr = roles.split(',')
+                var index = rolesArr.indexOf(role)
+ 
+                if (index > -1) {
+                   rolesArr.splice(index, 1);
+                }
+                
+                this.roles = rolesArr.toString()
+            },
+            removeOtherRole: function (event) {
+                if (event){
+                    event.preventDefault()
+                }
+                var target = $(event.currentTarget)
+                var role = target.attr('id')
+                
+                var currentRoles = this.roles
+                currentRoles += ',' + role
+                this.roles = currentRoles
+            },
+            restoreRoles: function (event) {
+                this.roles = this.oldRoles
+            },
+            displayRoles: function (event) {
+                Utils.getAllUserRoles()
+                .then((data) => {
+                    alert(data)
+                    this.allRoles = data;
+                })
+                .catch((err) => {
+                    alert("oops, something happened")
+                });
+                $(".other-roles-row").show()
             },
             ...mapMutations({                                
-                setUserDetails: 'userModule/setUserDetails',
-                setDetailsFetched: 'userModule/setDetailsFetched',                
+//                setUserDetails: 'userModule/setUserDetails',
+//                setDetailsFetched: 'userModule/setDetailsFetched',                
             }),
         }
     }
 </script>
 
 <style scoped>
-    
+
 </style>

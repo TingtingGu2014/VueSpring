@@ -5,11 +5,15 @@
  */
 package com.xprotocol.persistence.dao;
 
+import com.xprotocol.persistence.model.UserRoles;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +27,9 @@ public class UserRolesRepository {
     
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    
+    @Autowired
+    private NamedParameterJdbcTemplate namedTemplate;
     
     @Transactional(readOnly = true)
     public List<String> findRoleNamesByUserId(int userId){
@@ -57,5 +64,53 @@ public class UserRolesRepository {
     @Transactional
     public void deleteUserRolesByUserId(int userId){
         jdbcTemplate.update("DELETE FROM userRoles WHERE userId = ? ", new Object[]{userId});
+    }
+    
+    @Transactional
+    public void updateUserRolesByUserIdAndRoleNames(int userId, String roles){        
+        jdbcTemplate.update("DELETE FROM userRoles WHERE userId = ? ", new Object[]{userId});
+        String[] rolesArr = roles.split(",");
+        if(rolesArr.length > 0){
+            String sql = "INSERT INTO userRoles (userId, roleId) " +
+                         "SELECT 5 as userId, roleId FROM roles WHERE roles.roleName IN ('admin','regular');";
+        }
+    }
+    
+    @Transactional
+    public void selectUserRolesByUserIds(List<Integer> userIds){
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("userIds", userIds);
+        
+        String query = "SELECT * FROM userRoles WHERE userId IN (:userIds)";
+        List<UserRoles> userRoles = namedTemplate.query(query, parameters, new UserRolesMapper());
+        if(userRoles != null)
+        System.out.println("Got the results!");
+    }
+    
+    @Transactional
+    public int addUserRolesByUserIdAndRoleNames(int userId, List<String> roleNames){
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("roleNames", roleNames);
+        
+        String sql = "INSERT INTO userRoles (userId, roleId) " +
+                       "SELECT "+userId+" AS userId, roleId " +
+                       "FROM roles WHERE roleName IN (:roleNames) ";
+        
+        return namedTemplate.update(sql, parameters);
+    }
+    
+    @Transactional
+    public int updateUserRolesByUserIdAndRoleNames(int userId, List<String> roleNames){
+        
+        deleteUserRolesByUserId(userId);
+        
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("roleNames", roleNames);
+        
+        String sql = "INSERT INTO userRoles (userId, roleId) " +
+                       "SELECT "+userId+" AS userId, roleId " +
+                       "FROM roles WHERE roleName IN (:roleNames) ";
+        
+        return namedTemplate.update(sql, parameters);
     }
 }
