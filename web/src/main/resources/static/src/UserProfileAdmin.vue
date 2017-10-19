@@ -110,8 +110,8 @@
                     
                     <div class="form-group row">
                         <label class="col-md-4 col-form-label form-control-label"></label>
-                        <div class="col-md-8">
-                            <input type="reset" class="btn btn-secondary" value="Cancel">
+                        <div class="col-md-8">                            
+                            <router-link :to="{ name: 'home'}" class="btn btn-secondary">Cancel</router-link>
                             &nbsp;
                             &nbsp;
                             <input type="submit" class="btn btn-primary" value="Save Changes" v-on:click.prevent="onSubmit">
