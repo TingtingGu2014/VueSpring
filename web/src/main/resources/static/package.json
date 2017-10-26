@@ -17,7 +17,6 @@
     "vue-resource": "^1.3.4",
     "vue-router": "^2.5.3",
     "vue-table-component": "^1.4.3",
-    "vue-tinymce": "^1.0.5",
     "vuex": "^2.3.1"
   },
   "devDependencies": {
