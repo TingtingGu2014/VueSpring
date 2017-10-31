@@ -1,4 +1,4 @@
-# Xprotocol
+# VueSpring
 
 A Java-vuejs2 application.
 
